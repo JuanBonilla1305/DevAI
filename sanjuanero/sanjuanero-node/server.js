@@ -105,12 +105,24 @@ const FASTSD_DIR = (() => {
     ) || candidatos[0];
 })();
 
-// Por defecto se usa FastSD tal como lo entrego el profesor: OpenVINO sobre
-// CPU, unos 10 minutos por imagen. Con MOTOR_GPU=1 se levanta en su lugar
-// servidor_gpu.py, que responde exactamente la misma API pero genera en la
-// GPU en unos 6 segundos. server.js no nota la diferencia: lo unico que
-// cambia es a quien arranca y contra quien habla.
-const MOTOR_GPU = process.env.MOTOR_GPU === "1";
+// Tres motores posibles, todos hablando la misma API en el puerto 8000:
+//
+//   (por defecto)   FastSD + OpenVINO + FLUX.2 Klein, en CPU.   ~318 s
+//   MOTOR=flux2     FLUX.2 Klein en PyTorch, en CUDA.           mucho menos
+//   MOTOR_GPU=1     Stable Diffusion 1.5 en CUDA.               ~6 s, peor
+//
+// flux2 es el mismo modelo que el del profesor, solo que sin pasar por
+// OpenVINO, asi que conserva el parecido y usa la tarjeta grafica.
+const MOTOR = (process.env.MOTOR || "").toLowerCase();
+const MOTOR_FLUX2 = MOTOR === "flux2";
+
+// SD 1.5 trae su propia forma de trabajar: genera desde texto, usa el banco
+// de escenas y necesita prompt negativo. flux2 no: edita a partir de las
+// imagenes de referencia, igual que FastSD. Por eso hacen falta dos banderas
+// y no una: MOTOR_PROPIO decide a quien arrancamos, MOTOR_SD15 decide como
+// se construye la peticion.
+const MOTOR_SD15 = process.env.MOTOR_GPU === "1" && !MOTOR_FLUX2;
+const MOTOR_PROPIO = MOTOR_SD15 || MOTOR_FLUX2;
 
 const CAMARA80S_DIR = path.join(SANJUANERO_DIR, "..", "camara80s");
 
@@ -124,15 +136,17 @@ const CAMARA80S_DIR = path.join(SANJUANERO_DIR, "..", "camara80s");
 //                PyTorch con CUDA.
 const FASTSD_PYTHON = path.join(FASTSD_DIR, "env", "Scripts", "python.exe");
 
-const MOTOR_PYTHON = MOTOR_GPU
+const MOTOR_PYTHON = MOTOR_PROPIO
     ? path.join(CAMARA80S_DIR, ".venv", "Scripts", "python.exe")
     : FASTSD_PYTHON;
 
-const FASTSD_APP = MOTOR_GPU
-    ? path.join(CAMARA80S_DIR, "servidor_gpu.py")
-    : path.join(FASTSD_DIR, "src", "app.py");
+const FASTSD_APP = MOTOR_FLUX2
+    ? path.join(CAMARA80S_DIR, "servidor_flux2.py")
+    : MOTOR_SD15
+        ? path.join(CAMARA80S_DIR, "servidor_gpu.py")
+        : path.join(FASTSD_DIR, "src", "app.py");
 
-const MOTOR_DIR = MOTOR_GPU ? CAMARA80S_DIR : FASTSD_DIR;
+const MOTOR_DIR = MOTOR_PROPIO ? CAMARA80S_DIR : FASTSD_DIR;
 
 const FASTSD_API = "http://127.0.0.1:8000";
 
@@ -313,7 +327,7 @@ function buildFastSDBody(
         // FLUX.2 Klein no usa prompt negativo: la rama edit_image de FastSD
         // lo ignora. Solo tiene sentido con el motor GPU, que si lo aplica.
         negative_prompt:
-            negativo || (MOTOR_GPU && TEMA !== "sanjuanero" ? NEGATIVO_80S : ""),
+            negativo || (MOTOR_SD15 && TEMA !== "sanjuanero" ? NEGATIVO_80S : ""),
 
         init_image: initImage,
 
@@ -322,7 +336,7 @@ function buildFastSDBody(
         // Fuerza alta a proposito: el estilo ochentero necesita libertad para
         // cambiar pelo, ropa y fondo. La identidad no se juega aqui, sino en
         // preserve_face.py, que pega la cara real al final.
-        strength: MOTOR_GPU ? 0.72 : 0.90,
+        strength: MOTOR_SD15 ? 0.72 : 0.90,
 
         // FLUX.2 Klein trabaja con guidance 1.0 y muy pocos pasos; SD 1.5 en
         // img2img necesita mas pasos y guidance medio. Los valores salieron
@@ -332,13 +346,13 @@ function buildFastSDBody(
         // Vertical, pero sin exagerar el alto: las escenas son de cintura
         // para arriba, y un lienzo muy alargado invita al modelo a meter
         // cuerpo de mas y a alejar la cara.
-        image_height: MOTOR_GPU ? (desdeCero ? 640 : 576) : 512,
+        image_height: MOTOR_SD15 ? (desdeCero ? 640 : 576) : 512,
 
-        image_width: MOTOR_GPU ? (desdeCero ? 512 : 448) : 384,
+        image_width: MOTOR_SD15 ? (desdeCero ? 512 : 448) : 384,
 
-        inference_steps: MOTOR_GPU ? (desdeCero ? 28 : 20) : (isTwoPerson ? 8 : 6),
+        inference_steps: MOTOR_SD15 ? (desdeCero ? 28 : 20) : (isTwoPerson ? 8 : 6),
 
-        guidance_scale: MOTOR_GPU ? 8.0 : 1.0,
+        guidance_scale: MOTOR_SD15 ? 8.0 : 1.0,
 
         clip_skip: 1,
 
@@ -484,7 +498,7 @@ function startFastSD() {
 
     console.log("");
     console.log("==============================================");
-    console.log(MOTOR_GPU
+    console.log(MOTOR_PROPIO
         ? " INICIANDO MOTOR GPU (CUDA)"
         : " INICIANDO FASTSD CPU");
     console.log("==============================================");
@@ -495,7 +509,11 @@ function startFastSD() {
     console.log(FASTSD_APP);
     console.log("");
     console.log("Modelo:");
-    console.log(MOTOR_GPU ? "instruct-pix2pix (CUDA)" : MODEL_ID);
+    console.log(
+        MOTOR_FLUX2 ? "FLUX.2 Klein 4B (CUDA, 4 bits)"
+        : MOTOR_SD15 ? "Stable Diffusion 1.5 (CUDA)"
+        : MODEL_ID
+    );
     console.log("");
 
     fastsdStarting = true;
@@ -1203,7 +1221,7 @@ app.post(
             // parecido. Ahi el prompt tiene que ser una instruccion de
             // edicion, no la descripcion de una foto inventada.
             let escena = null;
-            if (TEMA !== "sanjuanero" && MOTOR_GPU) {
+            if (TEMA !== "sanjuanero" && MOTOR_SD15) {
                 const personas = detectedPeople && detectedPeople.length
                     ? detectedPeople.slice(0, Number(peopleCount) || 1)
                     : [{ gender: costume, ageGroup: "adulto" }];

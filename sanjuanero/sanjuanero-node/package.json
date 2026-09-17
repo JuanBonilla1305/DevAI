@@ -6,6 +6,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
+    "start:flux2": "set MOTOR=flux2&& node server.js",
     "start:gpu": "set MOTOR_GPU=1&& node server.js",
     "start:sanjuanero": "set TEMA=sanjuanero&& node server.js",
     "dev": "node --watch server.js"

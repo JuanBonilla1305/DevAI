@@ -2,15 +2,21 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "retro80s-gpu",
+      "name": "retro80s-flux2",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "start:gpu", "--prefix", "sanjuanero/sanjuanero-node"],
+      "runtimeArgs": ["run", "start:flux2", "--prefix", "sanjuanero/sanjuanero-node"],
       "port": 3000
     },
     {
       "name": "retro80s-cpu",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["start", "--prefix", "sanjuanero/sanjuanero-node"],
+      "port": 3000
+    },
+    {
+      "name": "retro80s-sd15",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "start:gpu", "--prefix", "sanjuanero/sanjuanero-node"],
       "port": 3000
     }
   ]
