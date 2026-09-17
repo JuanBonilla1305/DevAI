@@ -1,164 +1,98 @@
 /**
- * Prompts para la version "retrato de los anios 80".
+ * Prompts de "retrato de los años 80". Escritos para img2img.
  *
- * Reemplazan a buildPrompt() y buildTwoPersonPrompt() de server.js, con la
- * misma firma, para poder cambiar de tema sin tocar el resto del servidor.
+ * Del proyecto del profesor se reutiliza la estructura (Node controla el
+ * flujo, un motor genera, InsightFace pega la cara real) pero no sus prompts.
+ * Los suyos eran ORDENES de edición ("dress him in a blazer"), que es lo que
+ * quiere instruct-pix2pix. Con img2img eso falla: el modelo obedece la orden
+ * literalmente y genera la prenda sola, sin la persona.
  *
- * Dos decisiones de encuadre, y el motivo de cada una:
+ * img2img quiere una DESCRIPCIÓN de la fotografía que queremos obtener. Parte
+ * de la foto real con ruido controlado, así que la composición se conserva
+ * por construcción y la intensidad se regula con un solo número, la fuerza.
  *
- * 1. Encuadre de medio cuerpo (de la cintura para arriba), no cuerpo entero.
- *    InSwapper trabaja internamente a 128x128: cuanto mas pequenia sale la
- *    cara en la imagen generada, peor queda el intercambio. El propio README
- *    del proyecto lo advierte. En un retrato de estudio la cara ocupa mucho
- *    mas encuadre, asi que el parecido final mejora bastante.
+ * Tres reglas que salieron de probar sobre fotos reales:
  *
- * 2. Retrato de estudio de centro comercial, no una escena de calle.
- *    Es el formato que la gente reconoce como "foto de los 80": fondo de
- *    laser o degradado, flash directo, brillo suave. Ademas simplifica la
- *    imagen: sin manos ni pies completos, desaparecen los artefactos tipicos
- *    de dedos y piernas que arruinan estas generaciones.
+ * 1. Describir, nunca ordenar. "1985 studio portrait of a young man with
+ *    feathered hair", no "give him feathered hair".
+ * 2. Empezar por lo que define la imagen (época, tipo de foto, sujeto). Lo
+ *    que va al principio pesa más.
+ * 3. Mandar al prompt negativo lo que hay que quitar de la foto original
+ *    -cascos, auriculares, ropa moderna-. Describir su ausencia no funciona.
  */
 
-// Lo comun a todos los prompts: la estetica fotografica de la epoca.
-const FOTOGRAFIA_80S =
-    "Shot on 35mm film with direct studio flash and a soft focus glow, " +
-    "warm Kodak Gold color cast, fine film grain and a subtle vignette. " +
-    "Authentic 1985 mall portrait studio look, photorealistic, " +
-    "no text, no logo and no watermark.";
+// Estética fotográfica, común a todos los estilos.
+const PELICULA =
+    "direct flash, soft focus glow, warm Kodak Gold film grain, " +
+    "vintage 35mm mall portrait photograph, slight color cast";
 
-const FONDO_80S =
-    "The background is a classic 1980s portrait studio backdrop: " +
-    "a mottled blue-grey gradient with soft pink and cyan laser beams.";
+const FONDO =
+    "mottled blue-grey studio backdrop with soft pink and cyan laser beams";
 
-const ENCUADRE =
-    "Vertical waist-up portrait, the person centered and facing the camera " +
-    "with open eyes and a natural relaxed smile; do not use a profile view. " +
-    "Keep the head and shoulders large in the frame. " +
-    "Remove every other person from the scene.";
-
-const ROPA_MUJER =
-    "1980s womenswear: a pastel blouse with prominent padded shoulders and " +
-    "a wide collar, worn under a boxy blazer in mauve or teal, with large " +
-    "gold statement earrings and a thin gold chain";
+const PELO_HOMBRE = "voluminous feathered 1980s hair";
+const PELO_MUJER = "big voluminous feathered 1980s hair with lots of hairspray";
 
 const ROPA_HOMBRE =
-    "1980s menswear: a wide-collared shirt in a soft solid color under a " +
-    "boxy corduroy or tweed blazer with padded shoulders, optionally with a " +
-    "knitted argyle sweater vest";
+    "wide-collared shirt under a blazer with padded shoulders";
+const ROPA_MUJER =
+    "pastel blouse with a wide collar under a boxy blazer with padded " +
+    "shoulders, large gold statement earrings";
 
 /**
- * Instruccion de pelo e identidad. Es la parte delicada: queremos pelo
- * ochentero pero sin que invente una persona distinta, porque despues el
- * face swap tiene que encajar sobre esa cabeza.
+ * Lo que hay que sacar de la foto: objetos modernos que el modelo conservaría
+ * porque forman parte de la composición, más los defectos habituales.
  */
-function instruccionIdentidad(hasIdentityReference, identityPerson) {
-    const gafas = identityPerson
-        ? identityPerson.hasGlasses
-            ? `Keep the exact same ${identityPerson.glassesType || "eyeglasses"} ` +
-              "shown in the identity image, but restyle the frames as large " +
-              "1980s glasses."
-            : "This person wears no eyeglasses and no sunglasses."
+const NEGATIVO =
+    "headphones, headset, gaming headset, microphone, earbuds, " +
+    "bare shoulders, tank top, t-shirt, modern clothing, smartphone, " +
+    "webcam, computer screen, deformed face, distorted face, extra faces, " +
+    "two heads, blurry, lowres, text, watermark, cartoon, 3d render";
+
+function _persona(identityPerson, costume) {
+    const esHombre = costume === "hombre";
+    const sujeto = esHombre ? "a young man" : "a young woman";
+    const pelo = esHombre ? PELO_HOMBRE : PELO_MUJER;
+    const ropa = esHombre ? ROPA_HOMBRE : ROPA_MUJER;
+
+    // Las gafas solo se mencionan si las lleva: nombrarlas para negarlas
+    // hace que el modelo las dibuje igual.
+    const gafas = identityPerson && identityPerson.hasGlasses
+        ? ", wearing large 1980s eyeglasses with thin gold frames"
         : "";
 
-    if (!hasIdentityReference) {
-        return "Give the person period-accurate 1980s hair.";
-    }
-
-    return (
-        "The second input image controls the person's identity, face shape " +
-        "and skin tone: keep them exactly. " +
-        "Restyle only the hair into a period-accurate 1980s look, keeping " +
-        "its original color and its natural texture: if the hair is straight, " +
-        "wavy or curly, keep that texture, only make it fuller and feathered " +
-        "with more volume at the crown and sides. " +
-        "If the person is bald or has very short hair, keep it that way and " +
-        "do not add hair. " +
-        gafas
-    );
-}
-
-function instruccionVestuario(hasCostumeReference, hasIdentityReference) {
-    if (!hasCostumeReference) return "";
-    const posicion = hasIdentityReference ? "third" : "second";
-    return (
-        `The ${posicion} input image controls only the clothing: copy its ` +
-        "exact colors, fabric and cut. Ignore its body pose, background and " +
-        "framing."
-    );
+    return `${sujeto} with ${pelo}${gafas}, wearing a ${ropa}`;
 }
 
 /** Misma firma que buildPrompt() en server.js. */
-function buildPrompt80s(
-    costume,
-    hasIdentityReference,
-    hasCostumeReference,
-    identityPerson
-) {
-    const identidad = instruccionIdentidad(hasIdentityReference, identityPerson);
-    const vestuario = instruccionVestuario(hasCostumeReference, hasIdentityReference);
-    const ropa = costume === "hombre" ? ROPA_HOMBRE : ROPA_MUJER;
-
-    return `
-Restyle this photograph into a 1985 studio portrait of one person.
-The first input image controls only the pose, framing and camera angle.
-${identidad}
-${vestuario}
-The person wears ${ropa}.
-${ENCUADRE}
-${FONDO_80S}
-Keep one single anatomically correct person with natural shoulders and neck.
-If any hand is visible it must look natural, with five separate fingers.
-${FOTOGRAFIA_80S}
-`;
+function buildPrompt80s(costume, _hasIdentityRef, _hasCostumeRef, identityPerson) {
+    return (
+        `1985 studio portrait photograph of ${_persona(identityPerson, costume)}, ` +
+        `centered waist-up portrait facing the camera, ${FONDO}, ${PELICULA}`
+    );
 }
 
 /** Misma firma que buildTwoPersonPrompt() en server.js. */
-function buildTwoPersonPrompt80s(pairType, people, hasCostumeReference) {
-    const identidades = people
-        .map((person, index) => {
-            const gafas = person.hasGlasses
-                ? `wearing large 1980s ${person.glassesType || "eyeglasses"}`
-                : "wearing no eyeglasses and no sunglasses";
-            return (
-                `input image ${index + 2}: ${person.label}, ${gafas}, ` +
-                "keeping that exact centered face, skin tone and baldness, " +
-                "with the hair restyled into 1980s volume but the same color " +
-                "and texture; ignore any partial person at the crop edge"
-            );
-        })
-        .join("; ");
+function buildTwoPersonPrompt80s(pairType, people, _hasCostumeRef) {
+    const sujeto =
+        pairType === "adulto_nino" ? "an adult and a child"
+        : pairType === "pareja_mixta" ? "a young man and a young woman"
+        : pairType === "dos_hombres" ? "two young men"
+        : "two young women";
 
-    const posicionVestuario = people.length + 2;
-    const vestuario = hasCostumeReference
-        ? `Input image ${posicionVestuario} controls only the clothing: copy ` +
-          "its exact colors, fabric and cut."
+    const gafas = people.some(p => p.hasGlasses)
+        ? ", one of them wearing large 1980s eyeglasses"
         : "";
 
-    const escena =
-        pairType === "adulto_nino"
-            ? "an adult and a child posing together"
-            : pairType === "pareja_mixta"
-              ? "a man and a woman posing together"
-              : pairType === "dos_hombres"
-                ? "two men posing together"
-                : "two women posing together";
-
-    return `
-Restyle this photograph into a 1985 studio portrait of ${escena}.
-The first input image controls only the pose, framing and camera angle.
-Identities: ${identidades}.
-${vestuario}
-Both people wear 1980s clothing with padded shoulders and wide collars.
-Vertical waist-up portrait of exactly two people side by side, both facing
-the camera with open eyes; keep their heads clearly separated and large in
-the frame. Remove every other person from the scene.
-${FONDO_80S}
-Keep exactly two anatomically correct people.
-${FOTOGRAFIA_80S}
-`;
+    return (
+        `1985 studio portrait photograph of ${sujeto} posing side by side${gafas}, ` +
+        "both with voluminous feathered 1980s hair and 1980s clothing with " +
+        `padded shoulders and wide collars, centered waist-up portrait ` +
+        `facing the camera, ${FONDO}, ${PELICULA}`
+    );
 }
 
 module.exports = {
     buildPrompt80s,
-    buildTwoPersonPrompt80s
+    buildTwoPersonPrompt80s,
+    NEGATIVO_80S: NEGATIVO
 };

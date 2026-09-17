@@ -43,17 +43,24 @@ _CERROJO = threading.Lock()
 # ---------------------------------------------------------------------------
 
 def _cargar():
-    """Carga instruct-pix2pix en la GPU. Se hace una sola vez."""
+    """Carga el modelo en la GPU. Se hace una sola vez.
+
+    Se usa img2img y no instruct-pix2pix. pix2pix interpreta el prompt como
+    una orden ("ponle un blazer") y, con ordenes de vestuario, acaba
+    generando la prenda sola y tirando a la persona. img2img parte de la
+    foto con ruido controlado: la composicion queda sujeta por construccion
+    y la fuerza del cambio se regula con un unico valor.
+    """
     global _PIPE
     if _PIPE is not None:
         return _PIPE
 
-    from diffusers import StableDiffusionInstructPix2PixPipeline
+    from diffusers import StableDiffusionImg2ImgPipeline
     from hardware import ahorrar_memoria
 
-    print(f"[gpu] cargando {config.MODELO_PIX2PIX}")
-    pipe = StableDiffusionInstructPix2PixPipeline.from_pretrained(
-        config.MODELO_PIX2PIX,
+    print(f"[gpu] cargando {config.MODELO_IMG2IMG}")
+    pipe = StableDiffusionImg2ImgPipeline.from_pretrained(
+        config.MODELO_IMG2IMG,
         torch_dtype=torch.float16,
         safety_checker=None,
         requires_safety_checker=False,
@@ -193,20 +200,19 @@ def _generar(cuerpo: dict) -> dict:
     alto = max(256, alto // 8 * 8)
     base = _encuadrar(base, ancho, alto)
 
-    pasos = max(4, min(30, int(cuerpo.get("inference_steps") or 12)))
+    pasos = max(4, min(30, int(cuerpo.get("inference_steps") or 20)))
 
     # FastSD manda guidance 1.0 porque FLUX.2 lo necesita asi. SD 1.5 con ese
-    # valor ignora el prompt por completo, asi que lo subimos al rango que
-    # medimos como bueno para convertir un retrato en uno de los anios 80.
+    # valor ignora el prompt, asi que lo subimos a un rango util.
     guia = float(cuerpo.get("guidance_scale") or 1.0)
     if guia < 3.0:
-        guia = 12.0
+        guia = 8.0
 
-    # Con image_guidance_scale exactamente 1.0 diffusers cambia de rama
-    # interna y deja de aplicar guidance, lo que descuadra el tamanio de los
-    # embeddings y revienta con un IndexError. Nos quedamos por encima.
-    guia_imagen = float(cuerpo.get("image_guidance_scale") or 1.2)
-    guia_imagen = max(1.05, min(2.5, guia_imagen))
+    # Cuanto del original se conserva. 0 = no cambia nada, 1 = imagen nueva.
+    # Por debajo de 0.35 apenas se nota el cambio; por encima de 0.6 se
+    # pierde la persona.
+    fuerza = float(cuerpo.get("strength") or 0.60)
+    fuerza = max(0.2, min(0.75, fuerza))
 
     semilla = cuerpo.get("seed")
     if not cuerpo.get("use_seed") or semilla in (None, -1):
@@ -236,7 +242,7 @@ def _generar(cuerpo: dict) -> dict:
         image=base,
         num_inference_steps=pasos,
         guidance_scale=guia,
-        image_guidance_scale=guia_imagen,
+        strength=fuerza,
         generator=generador,
     )
     transcurrido = time.time() - inicio
@@ -245,7 +251,7 @@ def _generar(cuerpo: dict) -> dict:
     salida.images[0].save(buffer, format="PNG")
     codificada = base64.b64encode(buffer.getvalue()).decode("ascii")
 
-    print(f"[gpu] {ancho}x{alto}, {pasos} pasos, guia {guia}/{guia_imagen}, "
+    print(f"[gpu] {ancho}x{alto}, {pasos} pasos, guia {guia}, fuerza {fuerza}, "
           f"semilla {semilla} -> {transcurrido:.1f} s")
 
     return {"images": [codificada], "seconds": round(transcurrido, 1)}

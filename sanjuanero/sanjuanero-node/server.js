@@ -6,7 +6,8 @@ const { spawn } = require("child_process");
 const http = require("http");
 const {
     buildPrompt80s,
-    buildTwoPersonPrompt80s
+    buildTwoPersonPrompt80s,
+    NEGATIVO_80S
 } = require("./prompts80s");
 
 const GENERATE_TIMEOUT_MS = 60 * 60 * 1000;
@@ -298,27 +299,26 @@ function buildFastSDBody(prompt, initImage, isTwoPerson = false) {
 
         prompt: prompt,
 
-        negative_prompt: "",
+        negative_prompt: TEMA === "sanjuanero" ? "" : NEGATIVO_80S,
 
         init_image: initImage,
 
-        // FLUX.2 Klein no recibe strength en la rama edit_image de FastSD.
-        strength: 0.90,
+        // Cuanto se aleja el resultado de la foto original. FLUX.2 Klein no
+        // usa este campo en la rama edit_image de FastSD; el motor GPU si.
+        strength: MOTOR_GPU ? 0.60 : 0.90,
 
-        // FLUX.2 Klein trabaja con guidance 1.0 y muy pocos pasos. SD 1.5 en
-        // la GPU necesita lo contrario: guidance alto para que obedezca el
-        // prompt y algunos pasos mas. Los valores de abajo salieron de medir
-        // el barrido en una RTX 3050: a 12 pasos y guidance 12 el retrato
-        // queda ochentero y tarda menos de 7 segundos.
+        // FLUX.2 Klein trabaja con guidance 1.0 y muy pocos pasos; SD 1.5 en
+        // img2img necesita mas pasos y guidance medio. Los valores salieron
+        // de barrer parametros sobre fotos reales en una RTX 3050: a fuerza
+        // 0.55 la persona sigue siendo reconocible, los objetos modernos
+        // desaparecen y el retrato tarda menos de 4 segundos.
         image_height: MOTOR_GPU ? 576 : 512,
 
         image_width: MOTOR_GPU ? 448 : 384,
 
-        inference_steps: MOTOR_GPU ? 12 : (isTwoPerson ? 8 : 6),
+        inference_steps: MOTOR_GPU ? 20 : (isTwoPerson ? 8 : 6),
 
-        guidance_scale: MOTOR_GPU ? 12.0 : 1.0,
-
-        image_guidance_scale: 1.2,
+        guidance_scale: MOTOR_GPU ? 8.0 : 1.0,
 
         clip_skip: 1,
 
