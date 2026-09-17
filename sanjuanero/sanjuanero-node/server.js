@@ -305,7 +305,10 @@ function buildFastSDBody(prompt, initImage, isTwoPerson = false) {
 
         // Cuanto se aleja el resultado de la foto original. FLUX.2 Klein no
         // usa este campo en la rama edit_image de FastSD; el motor GPU si.
-        strength: MOTOR_GPU ? 0.60 : 0.90,
+        // Fuerza alta a proposito: el estilo ochentero necesita libertad para
+        // cambiar pelo, ropa y fondo. La identidad no se juega aqui, sino en
+        // preserve_face.py, que pega la cara real al final.
+        strength: MOTOR_GPU ? 0.72 : 0.90,
 
         // FLUX.2 Klein trabaja con guidance 1.0 y muy pocos pasos; SD 1.5 en
         // img2img necesita mas pasos y guidance medio. Los valores salieron
@@ -775,6 +778,16 @@ Photorealistic, no text, no flag and no watermark.
  * queda intacto y se puede volver a el cambiando una variable.
  */
 const TEMA = (process.env.TEMA || "80s").toLowerCase();
+
+// face_preserve.py descarta las caras de la imagen generada que quedan
+// demasiado abajo o demasiado anchas: sus limites asumen una escena de baile
+// de cuerpo entero. En un retrato de busto la cara ocupa mas de la mitad del
+// ancho, asi que los rechazaba todos y el intercambio se saltaba en silencio.
+// Estos valores los amplian solo para el tema de los 80.
+if (TEMA !== "sanjuanero") {
+    process.env.CARA_CENTRO_Y_MAX = process.env.CARA_CENTRO_Y_MAX || "0.80";
+    process.env.CARA_ANCHO_MAX = process.env.CARA_ANCHO_MAX || "0.90";
+}
 
 const construirPrompt =
     TEMA === "sanjuanero" ? buildPrompt : buildPrompt80s;

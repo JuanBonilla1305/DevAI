@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import cv2
@@ -52,15 +53,29 @@ def _get_swapper():
     return _app, _swapper
 
 
+# Limites para decidir que caras de la imagen generada son validas.
+#
+# Los valores originales asumen una escena de baile de cuerpo entero: la
+# cabeza sale pequenia y en la parte alta del encuadre. En un retrato de busto
+# la cara ocupa mas de la mitad del ancho y queda centrada, asi que esos
+# limites la rechazaban siempre y el intercambio se saltaba en silencio.
+#
+# Se dejan los valores del proyecto original por defecto y se ajustan con
+# variables de entorno desde el tema que los necesite.
+CENTRO_Y_MAXIMO = float(os.environ.get("CARA_CENTRO_Y_MAX", "0.55"))
+ANCHO_MINIMO = float(os.environ.get("CARA_ANCHO_MIN", "0.03"))
+ANCHO_MAXIMO = float(os.environ.get("CARA_ANCHO_MAX", "0.55"))
+
+
 def _pick_dest_faces(faces, width: int, height: int, count: int):
     scored = []
     for face in faces:
         x1, y1, x2, y2 = [float(v) for v in face.bbox]
         cx, cy = (x1 + x2) / 2.0, (y1 + y2) / 2.0
-        if cy > height * 0.55:
+        if cy > height * CENTRO_Y_MAXIMO:
             continue
         box_w = max(1.0, x2 - x1)
-        if box_w / width < 0.03 or box_w / width > 0.55:
+        if box_w / width < ANCHO_MINIMO or box_w / width > ANCHO_MAXIMO:
             continue
         score = (1.0 - abs(cx / width - 0.52)) + (1.0 - cy / height)
         scored.append((score, face))

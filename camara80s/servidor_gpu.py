@@ -152,8 +152,11 @@ def _encuadrar(img: Image.Image, ancho: int, alto: int) -> Image.Image:
         # va en el tercio superior, no en el medio.
         cy = y + h * 1.15
 
-        # Un busto ocupa alrededor de tres veces el ancho de la cara.
-        caja_alto = min(H, h * 4.0)
+        # Encuadre algo mas abierto que un primer plano: InSwapper trabaja a
+        # 128x128, asi que cuanto mas grande sale la cara en la imagen final,
+        # mas se nota el desenfoque del intercambio. Dejando mas cuerpo la
+        # cara ocupa menos pixeles y el pegado pasa desapercibido.
+        caja_alto = min(H, h * 5.0)
         caja_ancho = caja_alto * proporcion
         if caja_ancho > W:
             caja_ancho = W
@@ -211,8 +214,8 @@ def _generar(cuerpo: dict) -> dict:
     # Cuanto del original se conserva. 0 = no cambia nada, 1 = imagen nueva.
     # Por debajo de 0.35 apenas se nota el cambio; por encima de 0.6 se
     # pierde la persona.
-    fuerza = float(cuerpo.get("strength") or 0.60)
-    fuerza = max(0.2, min(0.75, fuerza))
+    fuerza = float(cuerpo.get("strength") or 0.72)
+    fuerza = max(0.2, min(0.90, fuerza))
 
     semilla = cuerpo.get("seed")
     if not cuerpo.get("use_seed") or semilla in (None, -1):

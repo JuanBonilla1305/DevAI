@@ -23,19 +23,30 @@
 
 // Estética fotográfica, común a todos los estilos.
 const PELICULA =
-    "direct flash, soft focus glow, warm Kodak Gold film grain, " +
-    "vintage 35mm mall portrait photograph, slight color cast";
+    "shot on 35mm film at night, neon rim lighting on the face, " +
+    "warm film grain, slight halation around the lights, " +
+    "vintage 1985 photograph, cinematic";
 
+// Ciudad retro de noche. Es lo que da el aire ochentero reconocible, mucho
+// más que un fondo de estudio: neón, asfalto mojado y luces moradas y cian.
 const FONDO =
-    "mottled blue-grey studio backdrop with soft pink and cyan laser beams";
+    "standing in a neon-lit 1980s city street at night, glowing neon signs " +
+    "in pink and cyan behind him, wet asphalt reflecting the lights, " +
+    "blurred city bokeh, purple and teal color grading, synthwave atmosphere";
 
-const PELO_HOMBRE = "voluminous feathered 1980s hair";
-const PELO_MUJER = "big voluminous feathered 1980s hair with lots of hairspray";
+// El pelo es lo que más marca la época. Se describe con detalle a propósito.
+const PELO_HOMBRE =
+    "thick voluminous feathered 1980s hairstyle, blow-dried with height at " +
+    "the crown and wings at the sides";
+const PELO_MUJER =
+    "big voluminous permed 1980s hair, teased high with lots of volume and " +
+    "feathered layers framing the face";
 
 const ROPA_HOMBRE =
-    "wide-collared shirt under a blazer with padded shoulders";
+    "wide-collared shirt under a boxy blazer with heavy padded shoulders, " +
+    "sleeves pushed up";
 const ROPA_MUJER =
-    "pastel blouse with a wide collar under a boxy blazer with padded " +
+    "bright blouse with a wide collar under a boxy blazer with heavy padded " +
     "shoulders, large gold statement earrings";
 
 /**
@@ -44,9 +55,10 @@ const ROPA_MUJER =
  */
 const NEGATIVO =
     "headphones, headset, gaming headset, microphone, earbuds, " +
-    "bare shoulders, tank top, t-shirt, modern clothing, smartphone, " +
-    "webcam, computer screen, deformed face, distorted face, extra faces, " +
-    "two heads, blurry, lowres, text, watermark, cartoon, 3d render";
+    "bare shoulders, tank top, t-shirt, hoodie, modern clothing, smartphone, " +
+    "webcam, computer screen, plain studio backdrop, daylight, " +
+    "deformed face, distorted face, extra faces, two heads, " +
+    "blurry, lowres, text, watermark, cartoon, 3d render, illustration";
 
 function _persona(identityPerson, costume) {
     const esHombre = costume === "hombre";
@@ -66,8 +78,8 @@ function _persona(identityPerson, costume) {
 /** Misma firma que buildPrompt() en server.js. */
 function buildPrompt80s(costume, _hasIdentityRef, _hasCostumeRef, identityPerson) {
     return (
-        `1985 studio portrait photograph of ${_persona(identityPerson, costume)}, ` +
-        `centered waist-up portrait facing the camera, ${FONDO}, ${PELICULA}`
+        `1985 photograph of ${_persona(identityPerson, costume)}, ` +
+        `waist-up portrait facing the camera, ${FONDO}, ${PELICULA}`
     );
 }
 
@@ -84,9 +96,9 @@ function buildTwoPersonPrompt80s(pairType, people, _hasCostumeRef) {
         : "";
 
     return (
-        `1985 studio portrait photograph of ${sujeto} posing side by side${gafas}, ` +
-        "both with voluminous feathered 1980s hair and 1980s clothing with " +
-        `padded shoulders and wide collars, centered waist-up portrait ` +
+        `1985 photograph of ${sujeto} posing side by side${gafas}, ` +
+        "both with big voluminous feathered 1980s hair and 1980s clothing " +
+        "with heavy padded shoulders and wide collars, waist-up portrait " +
         `facing the camera, ${FONDO}, ${PELICULA}`
     );
 }
