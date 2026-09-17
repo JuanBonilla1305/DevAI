@@ -310,8 +310,10 @@ function buildFastSDBody(
 
         prompt: prompt,
 
+        // FLUX.2 Klein no usa prompt negativo: la rama edit_image de FastSD
+        // lo ignora. Solo tiene sentido con el motor GPU, que si lo aplica.
         negative_prompt:
-            negativo || (TEMA === "sanjuanero" ? "" : NEGATIVO_80S),
+            negativo || (MOTOR_GPU && TEMA !== "sanjuanero" ? NEGATIVO_80S : ""),
 
         init_image: initImage,
 
@@ -1164,8 +1166,11 @@ app.post(
                     : detectedPeople.some(
                         person => person.gender === "mujer"
                     );
+            // La referencia de vestuario es el vestido sanjuanero: solo sirve
+            // para ese tema. En el de los 80 metia una falda de faldeo en la
+            // escena, asi que ahi no se manda ninguna.
             const costumeRefBase64 =
-                hasWoman
+                TEMA === "sanjuanero" && hasWoman
                     ? fileToBase64(REF_VESTIDO_MUJER)
                     : null;
 
@@ -1191,8 +1196,14 @@ app.post(
             // que haya detectado el analisis facial. Se le pasan las personas
             // detectadas tal cual: de ahi salen el genero y si alguna es un
             // ninio, sin preguntarselo al usuario.
+            // El banco de escenas solo tiene sentido con el motor GPU, que
+            // genera desde texto. Con FastSD/FLUX.2 se usa el flujo del
+            // profesor: el modelo recibe los recortes de la cabeza real y
+            // edita a partir de ellos, que es lo que de verdad conserva el
+            // parecido. Ahi el prompt tiene que ser una instruccion de
+            // edicion, no la descripcion de una foto inventada.
             let escena = null;
-            if (TEMA !== "sanjuanero") {
+            if (TEMA !== "sanjuanero" && MOTOR_GPU) {
                 const personas = detectedPeople && detectedPeople.length
                     ? detectedPeople.slice(0, Number(peopleCount) || 1)
                     : [{ gender: costume, ageGroup: "adulto" }];

@@ -1,110 +1,131 @@
 /**
- * Prompts de "retrato de los años 80". Escritos para img2img.
+ * Prompts para el motor FLUX.2 Klein (el backend original del profesor).
  *
- * Del proyecto del profesor se reutiliza la estructura (Node controla el
- * flujo, un motor genera, InsightFace pega la cara real) pero no sus prompts.
- * Los suyos eran ORDENES de edición ("dress him in a blazer"), que es lo que
- * quiere instruct-pix2pix. Con img2img eso falla: el modelo obedece la orden
- * literalmente y genera la prenda sola, sin la persona.
+ * Aquí el modelo NO se inventa la escena: recibe imágenes de entrada y las
+ * edita. Eso es lo que conserva el parecido, porque entre esas imágenes van
+ * los recortes de la cabeza real de la persona. Por eso el prompt tiene que
+ * ser una INSTRUCCIÓN que diga qué imagen controla qué, no la descripción de
+ * una fotografía inventada.
  *
- * img2img quiere una DESCRIPCIÓN de la fotografía que queremos obtener. Parte
- * de la foto real con ruido controlado, así que la composición se conserva
- * por construcción y la intensidad se regula con un solo número, la fuerza.
+ * Orden de las imágenes que envía server.js:
+ *   1ª  la fotografía de la persona: manda el encuadre y la postura
+ *   2ª  el recorte de la cabeza: manda la identidad y el pelo
+ *  (3ª) referencia de vestuario, solo en el tema sanjuanero
  *
- * Tres reglas que salieron de probar sobre fotos reales:
- *
- * 1. Describir, nunca ordenar. "1985 studio portrait of a young man with
- *    feathered hair", no "give him feathered hair".
- * 2. Empezar por lo que define la imagen (época, tipo de foto, sujeto). Lo
- *    que va al principio pesa más.
- * 3. Mandar al prompt negativo lo que hay que quitar de la foto original
- *    -cascos, auriculares, ropa moderna-. Describir su ausencia no funciona.
+ * Referencia visual: la foto familiar colombiana de los años 80, con el color
+ * virado del revelado de barrio y un exterior de patio o jardín.
  */
 
-// Estética fotográfica, común a todos los estilos.
+const AMBIENTE =
+    "Place the person outdoors in 1980s Colombia: beside a big leafy tree " +
+    "with green grass, a whitewashed or red brick house behind, and a " +
+    "bougainvillea in bloom.";
+
 const PELICULA =
-    "shot on 35mm film at night, neon rim lighting on the face, " +
-    "warm film grain, slight halation around the lights, " +
-    "vintage 1985 photograph, cinematic";
+    "Make it look like an authentic 1985 amateur color snapshot: faded " +
+    "washed-out colors with a warm magenta shift, soft focus, slight " +
+    "overexposure, visible film grain, direct on-camera flash. " +
+    "Photorealistic, no text and no watermark.";
 
-// Ciudad retro de noche. Es lo que da el aire ochentero reconocible, mucho
-// más que un fondo de estudio: neón, asfalto mojado y luces moradas y cian.
-const FONDO =
-    "standing in a neon-lit 1980s city street at night, glowing neon signs " +
-    "in pink and cyan behind him, wet asphalt reflecting the lights, " +
-    "blurred city bokeh, purple and teal color grading, synthwave atmosphere";
+const ENCUADRE =
+    "Keep it a waist-up photograph with the person centered and facing the " +
+    "camera, the face clearly visible and well lit.";
 
-// El pelo es lo que más marca la época. Se describe con detalle a propósito.
-const PELO_HOMBRE =
-    "thick voluminous feathered 1980s hairstyle, blow-dried with height at " +
-    "the crown and wings at the sides";
-const PELO_MUJER =
-    "big voluminous permed 1980s hair, teased high with lots of volume and " +
-    "feathered layers framing the face";
-
-const ROPA_HOMBRE =
-    "wide-collared shirt under a boxy blazer with heavy padded shoulders, " +
-    "sleeves pushed up";
-const ROPA_MUJER =
-    "bright blouse with a wide collar under a boxy blazer with heavy padded " +
-    "shoulders, large gold statement earrings";
-
-/**
- * Lo que hay que sacar de la foto: objetos modernos que el modelo conservaría
- * porque forman parte de la composición, más los defectos habituales.
- */
-const NEGATIVO =
-    "headphones, headset, gaming headset, microphone, earbuds, " +
-    "bare shoulders, tank top, t-shirt, hoodie, modern clothing, smartphone, " +
-    "webcam, computer screen, plain studio backdrop, daylight, " +
-    "deformed face, distorted face, extra faces, two heads, " +
-    "blurry, lowres, text, watermark, cartoon, 3d render, illustration";
-
-function _persona(identityPerson, costume) {
-    const esHombre = costume === "hombre";
-    const sujeto = esHombre ? "a young man" : "a young woman";
-    const pelo = esHombre ? PELO_HOMBRE : PELO_MUJER;
-    const ropa = esHombre ? ROPA_HOMBRE : ROPA_MUJER;
-
-    // Las gafas solo se mencionan si las lleva: nombrarlas para negarlas
-    // hace que el modelo las dibuje igual.
-    const gafas = identityPerson && identityPerson.hasGlasses
-        ? ", wearing large 1980s eyeglasses with thin gold frames"
+/** Lo que conserva el parecido. Es la parte que no se debe tocar. */
+function identidad(hasIdentityReference, identityPerson) {
+    const gafas = identityPerson
+        ? identityPerson.hasGlasses
+            ? `Keep the ${identityPerson.glassesType === "sunglasses"
+                ? "sunglasses" : "eyeglasses"} the person is wearing, ` +
+              "restyled as 1980s frames."
+            : "The person wears no eyeglasses and no sunglasses."
         : "";
 
-    return `${sujeto} with ${pelo}${gafas}, wearing a ${ropa}`;
+    if (!hasIdentityReference) {
+        return "Keep the person's face exactly as it is.";
+    }
+
+    return (
+        "The second input image controls the person's identity: keep that " +
+        "exact face, bone structure and skin tone, without changing them. " +
+        "Restyle only the hair into a 1980s look, keeping its original " +
+        "color and texture, just fuller and with more volume. If the person " +
+        "is bald or has very short hair, keep it that way. " + gafas
+    );
+}
+
+const ROPA_HOMBRE =
+    "Dress him in everyday 1980s Colombian menswear: a short-sleeved " +
+    "checked shirt buttoned to the top, or a white guayabera, or a dark " +
+    "blazer over a wide-collared shirt.";
+
+const ROPA_MUJER =
+    "Dress her in everyday 1980s Colombian womenswear: a white blouse with " +
+    "shoulder pads and a wide collar, or a cardigan over a floral blouse, " +
+    "with small gold earrings.";
+
+const ROPA_NINO =
+    "Dress the child in everyday 1980s clothing: a small collared shirt or " +
+    "a knitted sweater. No moustache, no beard.";
+
+function _ropa(costume, identityPerson) {
+    if (identityPerson && identityPerson.ageGroup &&
+        identityPerson.ageGroup !== "adulto") {
+        return ROPA_NINO;
+    }
+    return costume === "hombre" ? ROPA_HOMBRE : ROPA_MUJER;
 }
 
 /** Misma firma que buildPrompt() en server.js. */
-function buildPrompt80s(costume, _hasIdentityRef, _hasCostumeRef, identityPerson) {
-    return (
-        `1985 photograph of ${_persona(identityPerson, costume)}, ` +
-        `waist-up portrait facing the camera, ${FONDO}, ${PELICULA}`
-    );
+function buildPrompt80s(costume, hasIdentityReference, _hasCostumeRef, identityPerson) {
+    return [
+        "Turn this photograph into a 1980s Colombian family photograph.",
+        "The first input image controls the framing and the posture.",
+        identidad(hasIdentityReference, identityPerson),
+        _ropa(costume, identityPerson),
+        ENCUADRE,
+        AMBIENTE,
+        PELICULA,
+    ].join("\n");
 }
 
 /** Misma firma que buildTwoPersonPrompt() en server.js. */
 function buildTwoPersonPrompt80s(pairType, people, _hasCostumeRef) {
-    const sujeto =
+    const identidades = people
+        .map((person, index) => {
+            const gafas = person.hasGlasses
+                ? `keeping the ${person.glassesType === "sunglasses"
+                    ? "sunglasses" : "eyeglasses"} restyled as 1980s frames`
+                : "wearing no eyeglasses";
+            const quien = person.ageGroup && person.ageGroup !== "adulto"
+                ? "a child"
+                : person.gender === "mujer" ? "a woman" : "a man";
+            return (
+                `input image ${index + 2}: ${quien}, ${gafas}, keeping that ` +
+                "exact face, skin tone and natural hair, restyled into 1980s " +
+                "volume but the same color and texture"
+            );
+        })
+        .join("; ");
+
+    const escena =
         pairType === "adulto_nino" ? "an adult and a child"
-        : pairType === "pareja_mixta" ? "a young man and a young woman"
-        : pairType === "dos_hombres" ? "two young men"
-        : "two young women";
+        : pairType === "pareja_mixta" ? "a man and a woman"
+        : pairType === "dos_hombres" ? "two men"
+        : "two women";
 
-    const gafas = people.some(p => p.hasGlasses)
-        ? ", one of them wearing large 1980s eyeglasses"
-        : "";
-
-    return (
-        `1985 photograph of ${sujeto} posing side by side${gafas}, ` +
-        "both with big voluminous feathered 1980s hair and 1980s clothing " +
-        "with heavy padded shoulders and wide collars, waist-up portrait " +
-        `facing the camera, ${FONDO}, ${PELICULA}`
-    );
+    return [
+        `Turn this photograph into a 1980s Colombian family photograph of ${escena}.`,
+        "The first input image controls the framing and the posture.",
+        `Identities: ${identidades}.`,
+        "Dress them in everyday 1980s Colombian clothing with wide collars " +
+        "and shoulder pads.",
+        "Keep it a waist-up photograph of exactly two people side by side, " +
+        "their heads clearly separated, both faces visible and well lit, " +
+        "both facing the camera.",
+        AMBIENTE,
+        PELICULA,
+    ].join("\n");
 }
 
-module.exports = {
-    buildPrompt80s,
-    buildTwoPersonPrompt80s,
-    NEGATIVO_80S: NEGATIVO
-};
+module.exports = { buildPrompt80s, buildTwoPersonPrompt80s };
