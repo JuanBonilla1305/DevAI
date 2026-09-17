@@ -833,9 +833,16 @@ const construirPromptDosPersonas =
 console.log(`Tema activo: ${TEMA}`);
 
 function classifyPair(people) {
-    if (people.some(person => person.ageGroup !== "adulto")) {
-        return "adulto_nino";
-    }
+    // Cuantos no son adultos importa: con uno solo es un adulto acompaniando
+    // a un ninio, pero con los dos son dos ninios. La version anterior
+    // devolvia "adulto_nino" en cuanto uno de los dos no era adulto, asi que
+    // dos ninios acababan vestidos como si uno fuera adulto.
+    const ninios = people.filter(
+        person => person.ageGroup && person.ageGroup !== "adulto"
+    ).length;
+
+    if (ninios === people.length) return "dos_ninos";
+    if (ninios > 0) return "adulto_nino";
 
     const women = people.filter(person => person.gender === "mujer").length;
     if (women === 2) return "dos_mujeres";

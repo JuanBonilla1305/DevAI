@@ -156,11 +156,14 @@ function _aleatorio(semilla) {
  * decide la edad, porque eso no se le pregunta.
  */
 function _tipo(persona, generoElegido) {
+    // Lo que eligió el usuario manda, incluido "nino": estimar la edad falla
+    // con facilidad y no debe pisar una elección explícita.
+    if (generoElegido === "nino" || generoElegido === "mujer" ||
+        generoElegido === "hombre") {
+        return generoElegido;
+    }
     if (persona && persona.ageGroup && persona.ageGroup !== "adulto") {
         return "nino";
-    }
-    if (generoElegido === "mujer" || generoElegido === "hombre") {
-        return generoElegido;
     }
     if (!persona) return "hombre";
     return persona.gender === "mujer" ? "mujer" : "hombre";

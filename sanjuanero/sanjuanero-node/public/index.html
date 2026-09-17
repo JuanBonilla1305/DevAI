@@ -52,14 +52,16 @@
       <section class="card">
         <h2 id="costumeTitle">2. Vestuario</h2>
         <div id="singleCostume">
-          <label class="choice"><input type="radio" name="costume" value="mujer" checked><span><b>Mujer</b><small>Blusa pastel con hombreras, blazer y aretes dorados</small></span></label>
-          <label class="choice"><input type="radio" name="costume" value="hombre"><span><b>Hombre</b><small>Camisa de cuello ancho y blazer con hombreras</small></span></label>
+          <label class="choice"><input type="radio" name="costume" value="mujer" checked><span><b>Mujer</b><small>Blusa con hombreras, cárdigan y aretes dorados</small></span></label>
+          <label class="choice"><input type="radio" name="costume" value="hombre"><span><b>Hombre</b><small>Camisa de cuadros, guayabera o blazer</small></span></label>
+          <label class="choice"><input type="radio" name="costume" value="nino"><span><b>Niño o niña</b><small>Camisa de colegio o suéter tejido, sin bigote</small></span></label>
         </div>
         <div id="pairCostume" class="hidden">
           <label class="choice"><input type="radio" name="pairType" value="dos_mujeres"><span><b>Dos mujeres</b><small>Dos looks femeninos ochenteros</small></span></label>
           <label class="choice"><input type="radio" name="pairType" value="dos_hombres"><span><b>Dos hombres</b><small>Dos looks masculinos ochenteros</small></span></label>
           <label class="choice"><input type="radio" name="pairType" value="pareja_mixta" checked><span><b>Pareja mixta</b><small>Vestuario femenino y masculino</small></span></label>
           <label class="choice"><input type="radio" name="pairType" value="adulto_nino"><span><b>Adulto con niño</b><small>Vestuario según cada persona detectada</small></span></label>
+          <label class="choice"><input type="radio" name="pairType" value="dos_ninos"><span><b>Dos niños</b><small>Dos looks infantiles ochenteros</small></span></label>
         </div>
       </section>
 
@@ -72,7 +74,7 @@
 
     <section class="card">
       <h2>4. Identidad</h2>
-      <p class="help">Controla cuánto se parece el rostro final a tu foto. Bajo = mezcla suave. Alto = tu cara casi completa. Cada escena tarda menos de un minuto.</p>
+      <p class="help">Controla cuánto se parece el rostro final a tu foto. Bajo = mezcla suave. Alto = tu cara casi completa. Cada foto tarda un par de minutos.</p>
       <input id="strength" type="range" min="0.15" max="0.50" value="0.30" step="0.01">
       <div class="strength-labels"><span>Suave</span><span id="strengthValue">0.30</span><span>Tu cara</span></div>
     </section>

@@ -224,7 +224,7 @@ async function checkStatus() {
  * avance real, así que se estima sobre el tiempo medido: es una aproximación,
  * y por eso la barra se detiene en el 95% en vez de fingir que ha terminado.
  */
-const SEGUNDOS_ESTIMADOS = 330;
+const SEGUNDOS_ESTIMADOS = 140;
 
 function arrancarReloj() {
     const inicio = Date.now();
@@ -234,9 +234,9 @@ function arrancarReloj() {
     const barraProgreso = document.getElementById('barraProgreso');
 
     const pasos = [
-        [0, 'Cargando el modelo...', 'La primera vez tarda más porque tiene que leer los 4,3 GB del modelo.'],
-        [25, 'Generando la escena...', 'Construyendo el ambiente, la ropa y el peinado de los años 80.'],
-        [300, 'Colocando tu cara...', 'Aplicando tu rostro real sobre la escena generada.'],
+        [0, 'Analizando la fotografía...', 'Detectando el rostro, la edad y si llevas gafas.'],
+        [30, 'Generando la escena...', 'Construyendo el ambiente, la ropa y el peinado de los años 80.'],
+        [80, 'Colocando tu cara...', 'Aplicando tu rostro real sobre la escena generada.'],
     ];
 
     function pintar() {

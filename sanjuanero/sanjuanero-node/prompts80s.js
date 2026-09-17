@@ -68,12 +68,21 @@ const ROPA_NINO =
     "Dress the child in everyday 1980s clothing: a small collared shirt or " +
     "a knitted sweater. No moustache, no beard.";
 
+/**
+ * Elige el vestuario. Manda lo que seleccionó el usuario; la detección de
+ * edad solo decide cuando no se ha pedido nada explícito, porque estimar si
+ * alguien es un niño falla con facilidad y no debe pisar una elección.
+ */
 function _ropa(costume, identityPerson) {
+    if (costume === "nino") return ROPA_NINO;
+    if (costume === "hombre") return ROPA_HOMBRE;
+    if (costume === "mujer") return ROPA_MUJER;
+
     if (identityPerson && identityPerson.ageGroup &&
         identityPerson.ageGroup !== "adulto") {
         return ROPA_NINO;
     }
-    return costume === "hombre" ? ROPA_HOMBRE : ROPA_MUJER;
+    return ROPA_MUJER;
 }
 
 /** Misma firma que buildPrompt() en server.js. */
@@ -109,17 +118,25 @@ function buildTwoPersonPrompt80s(pairType, people, _hasCostumeRef) {
         .join("; ");
 
     const escena =
-        pairType === "adulto_nino" ? "an adult and a child"
+        pairType === "dos_ninos" ? "two children"
+        : pairType === "adulto_nino" ? "an adult and a child"
         : pairType === "pareja_mixta" ? "a man and a woman"
         : pairType === "dos_hombres" ? "two men"
         : "two women";
+
+    const sinVello = pairType === "dos_ninos"
+        ? " No moustache, no beard on either child."
+        : "";
 
     return [
         `Turn this photograph into a 1980s Colombian family photograph of ${escena}.`,
         "The first input image controls the framing and the posture.",
         `Identities: ${identidades}.`,
-        "Dress them in everyday 1980s Colombian clothing with wide collars " +
-        "and shoulder pads.",
+        (pairType === "dos_ninos"
+            ? "Dress them in everyday 1980s children's clothing: small " +
+              "collared shirts or knitted sweaters."
+            : "Dress them in everyday 1980s Colombian clothing with wide " +
+              "collars and shoulder pads.") + sinVello,
         "Keep it a waist-up photograph of exactly two people side by side, " +
         "their heads clearly separated, both faces visible and well lit, " +
         "both facing the camera.",
