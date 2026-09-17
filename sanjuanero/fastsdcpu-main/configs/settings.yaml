@@ -39,8 +39,8 @@ lcm_diffusion_setting:
     The second input image controls the person''s identity: keep that exact face,
     bone structure and skin tone, without changing them. Restyle only the hair into
     a 1980s look, keeping its original color and texture, just fuller and with more
-    volume. If the person is bald or has very short hair, keep it that way. Keep the
-    eyeglasses the person is wearing, restyled as 1980s frames.
+    volume. If the person is bald or has very short hair, keep it that way. The person
+    wears no eyeglasses and no sunglasses.
 
     Dress him in everyday 1980s Colombian menswear: a short-sleeved checked shirt
     buttoned to the top, or a white guayabera, or a dark blazer over a wide-collared
