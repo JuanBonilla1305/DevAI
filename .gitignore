@@ -1,0 +1,41 @@
+# --- Entornos y dependencias (se reinstalan, no se versionan) ---
+.venv/
+env/
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+
+# --- Secretos ---
+.env
+*.key
+
+# --- Fotos: capturas, resultados y pruebas ---
+# Son datos biometricos de personas reales. No van a un repo publico.
+camara80s/capturas/
+camara80s/salidas/
+sanjuanero/sanjuanero-node/results/
+sanjuanero/fastsdcpu/results/
+sanjuanero/fastsdcpu/sanjuanero/results/
+
+# --- Modelos pesados ---
+# GitHub rechaza archivos de mas de 100 MB y avisa a partir de 50 MB.
+# Como obtener cada uno esta documentado en el README.
+*.onnx
+!sanjuanero/fastsdcpu/sanjuanero/models/face_attrib_net/**/face_attrib_net.onnx
+*.caffemodel
+*.gguf
+*.safetensors
+*.bin
+*.pt
+*.pth
+
+# --- Cachés y temporales ---
+*.log
+.DS_Store
+Thumbs.db
+sanjuanero/fastsdcpu/configs/settings.yaml
+
+# --- Otros repositorios que viven en esta carpeta ---
+/profile-repo/
+/SkillsDesarrollo/

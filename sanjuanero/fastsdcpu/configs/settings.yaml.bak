@@ -1,0 +1,52 @@
+generated_images:
+  format: PNG
+  path: F:\SanjuaneroIA\fastsdcpu-main\results
+  save_image: true
+  save_image_quality: 90
+lcm_diffusion_setting:
+  clip_skip: 1
+  controlnet: null
+  diffusion_task: edit_image
+  dirs:
+    controlnet: F:\SanjuaneroIA\fastsdcpu-main\controlnet_models
+    lora: F:\SanjuaneroIA\fastsdcpu-main\lora_models
+  gguf_model:
+    clip_path: null
+    diffusion_path: null
+    gguf_models: F:\SanjuaneroIA\fastsdcpu-main\models\gguf
+    t5xxl_path: null
+    vae_path: null
+  guidance_scale: 1
+  image_height: 1024
+  image_width: 768
+  inference_steps: 8
+  init_image: null
+  lcm_lora:
+    base_model_id: Lykon/dreamshaper-8
+    lcm_lora_id: latent-consistency/lcm-lora-sdv1-5
+  lcm_model_id: stabilityai/sd-turbo
+  lora:
+    enabled: false
+    fuse: true
+    models_dir: F:\SanjuaneroIA\fastsdcpu-main\lora_models
+    path: ''
+    weight: 0.5
+  negative_prompt: ''
+  number_of_images: 1
+  openvino_lcm_model_id: rupeshs/flux2-klein-4b-int4-ov
+  prompt: Change only the woman's clothing to a traditional Sanjuanero Huilense costume.
+    Preserve her face, identity, hair, skin, body, pose, hands, background, lighting,
+    camera angle, and composition exactly as in the original photograph. Do not change
+    any person or object except the woman's clothing.
+  rebuild_controlnet_pipeline: false
+  rebuild_pipeline: false
+  seed: 123123
+  strength: 0.35
+  token_merging: 0.0
+  use_gguf_model: false
+  use_lcm_lora: false
+  use_offline_model: false
+  use_openvino: true
+  use_safety_checker: false
+  use_seed: true
+  use_tiny_auto_encoder: false

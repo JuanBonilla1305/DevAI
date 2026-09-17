@@ -1,0 +1,16 @@
+{
+  "name": "sanjuanero-ia-local",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Interfaz Node.js/NPM para FastSD CPU + FLUX.2 Klein 4B OpenVINO",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "express": "^5.1.0",
+    "multer": "^2.0.2"
+  }
+}

@@ -1,0 +1,424 @@
+<mxfile host="app.diagrams.net" version="24.0.0">
+  <diagram name="Clases (vacio)" id="clases-vacio">
+    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1700" pageHeight="1150" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Facultad -->
+        <mxCell id="facultad" value="Facultad" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;" vertex="1" parent="1">
+          <mxGeometry x="760" y="20" width="160" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="facultad_c1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="facultad">
+          <mxGeometry y="30" width="160" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="facultad_c2" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="facultad">
+          <mxGeometry y="46" width="160" height="16" as="geometry" />
+        </mxCell>
+
+        <!-- Departamento -->
+        <mxCell id="departamento" value="Departamento" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;" vertex="1" parent="1">
+          <mxGeometry x="760" y="170" width="160" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="departamento_c1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="departamento">
+          <mxGeometry y="30" width="160" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="departamento_c2" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="departamento">
+          <mxGeometry y="46" width="160" height="16" as="geometry" />
+        </mxCell>
+
+        <!-- Edificio -->
+        <mxCell id="edificio" value="Edificio" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;" vertex="1" parent="1">
+          <mxGeometry x="470" y="330" width="150" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="edificio_c1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="edificio">
+          <mxGeometry y="30" width="150" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="edificio_c2" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="edificio">
+          <mxGeometry y="46" width="150" height="16" as="geometry" />
+        </mxCell>
+
+        <!-- Persona (abstract) -->
+        <mxCell id="persona" value="&lt;i&gt;«abstract»&lt;/i&gt;&lt;br&gt;&lt;b&gt;Persona&lt;/b&gt;" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=44;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;" vertex="1" parent="1">
+          <mxGeometry x="860" y="310" width="200" height="76" as="geometry" />
+        </mxCell>
+        <mxCell id="persona_c1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="persona">
+          <mxGeometry y="44" width="200" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="persona_c2" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="persona">
+          <mxGeometry y="60" width="200" height="16" as="geometry" />
+        </mxCell>
+
+        <!-- Programa -->
+        <mxCell id="programa" value="Programa" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;" vertex="1" parent="1">
+          <mxGeometry x="1120" y="330" width="160" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="programa_c1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="programa">
+          <mxGeometry y="30" width="160" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="programa_c2" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="programa">
+          <mxGeometry y="46" width="160" height="16" as="geometry" />
+        </mxCell>
+
+        <!-- Biblioteca -->
+        <mxCell id="biblioteca" value="Biblioteca" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;" vertex="1" parent="1">
+          <mxGeometry x="1420" y="160" width="160" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="biblioteca_c1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="biblioteca">
+          <mxGeometry y="30" width="160" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="biblioteca_c2" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="biblioteca">
+          <mxGeometry y="46" width="160" height="16" as="geometry" />
+        </mxCell>
+
+        <!-- Libro -->
+        <mxCell id="libro" value="Libro" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;" vertex="1" parent="1">
+          <mxGeometry x="1420" y="330" width="160" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="libro_c1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="libro">
+          <mxGeometry y="30" width="160" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="libro_c2" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="libro">
+          <mxGeometry y="46" width="160" height="16" as="geometry" />
+        </mxCell>
+
+        <!-- PeriodoAcademico -->
+        <mxCell id="periodo" value="PeriodoAcademico" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;" vertex="1" parent="1">
+          <mxGeometry x="20" y="500" width="170" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="periodo_c1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="periodo">
+          <mxGeometry y="30" width="170" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="periodo_c2" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="periodo">
+          <mxGeometry y="46" width="170" height="16" as="geometry" />
+        </mxCell>
+
+        <!-- Administrativo -->
+        <mxCell id="administrativo" value="Administrativo" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;" vertex="1" parent="1">
+          <mxGeometry x="230" y="500" width="180" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="administrativo_c1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="administrativo">
+          <mxGeometry y="30" width="180" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="administrativo_c2" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="administrativo">
+          <mxGeometry y="46" width="180" height="16" as="geometry" />
+        </mxCell>
+
+        <!-- Profesor -->
+        <mxCell id="profesor" value="Profesor" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;" vertex="1" parent="1">
+          <mxGeometry x="550" y="500" width="160" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="profesor_c1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="profesor">
+          <mxGeometry y="30" width="160" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="profesor_c2" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="profesor">
+          <mxGeometry y="46" width="160" height="16" as="geometry" />
+        </mxCell>
+
+        <!-- Aula -->
+        <mxCell id="aula" value="Aula" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;" vertex="1" parent="1">
+          <mxGeometry x="830" y="500" width="150" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="aula_c1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="aula">
+          <mxGeometry y="30" width="150" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="aula_c2" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="aula">
+          <mxGeometry y="46" width="150" height="16" as="geometry" />
+        </mxCell>
+
+        <!-- Curso -->
+        <mxCell id="curso" value="Curso" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="500" width="150" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="curso_c1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="curso">
+          <mxGeometry y="30" width="150" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="curso_c2" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="curso">
+          <mxGeometry y="46" width="150" height="16" as="geometry" />
+        </mxCell>
+
+        <!-- Prestamo -->
+        <mxCell id="prestamo" value="Prestamo" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;" vertex="1" parent="1">
+          <mxGeometry x="1190" y="500" width="170" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="prestamo_c1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="prestamo">
+          <mxGeometry y="30" width="170" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="prestamo_c2" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="prestamo">
+          <mxGeometry y="46" width="170" height="16" as="geometry" />
+        </mxCell>
+
+        <!-- Grupo -->
+        <mxCell id="grupo" value="Grupo" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;" vertex="1" parent="1">
+          <mxGeometry x="810" y="690" width="150" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="grupo_c1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="grupo">
+          <mxGeometry y="30" width="150" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="grupo_c2" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="grupo">
+          <mxGeometry y="46" width="150" height="16" as="geometry" />
+        </mxCell>
+
+        <!-- Estudiante -->
+        <mxCell id="estudiante" value="Estudiante" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="690" width="180" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="estudiante_c1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="estudiante">
+          <mxGeometry y="30" width="180" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="estudiante_c2" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="estudiante">
+          <mxGeometry y="46" width="180" height="16" as="geometry" />
+        </mxCell>
+
+        <!-- Horario -->
+        <mxCell id="horario" value="Horario" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;" vertex="1" parent="1">
+          <mxGeometry x="20" y="850" width="160" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="horario_c1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="horario">
+          <mxGeometry y="30" width="160" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="horario_c2" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="horario">
+          <mxGeometry y="46" width="160" height="16" as="geometry" />
+        </mxCell>
+
+        <!-- Matricula -->
+        <mxCell id="matricula" value="Matricula" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;" vertex="1" parent="1">
+          <mxGeometry x="550" y="870" width="150" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="matricula_c1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="matricula">
+          <mxGeometry y="30" width="150" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="matricula_c2" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="matricula">
+          <mxGeometry y="46" width="150" height="16" as="geometry" />
+        </mxCell>
+
+        <!-- Evaluacion -->
+        <mxCell id="evaluacion" value="Evaluacion" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;" vertex="1" parent="1">
+          <mxGeometry x="1420" y="850" width="170" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="evaluacion_c1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="evaluacion">
+          <mxGeometry y="30" width="170" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="evaluacion_c2" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="evaluacion">
+          <mxGeometry y="46" width="170" height="16" as="geometry" />
+        </mxCell>
+
+        <!-- Calificacion -->
+        <mxCell id="calificacion" value="Calificacion" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;" vertex="1" parent="1">
+          <mxGeometry x="1420" y="1000" width="170" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="calificacion_c1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="calificacion">
+          <mxGeometry y="30" width="170" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="calificacion_c2" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;points=[];portConstraint=eastwest;html=1;" vertex="1" parent="calificacion">
+          <mxGeometry y="46" width="170" height="16" as="geometry" />
+        </mxCell>
+
+        <!-- ================= EDGES ================= -->
+
+        <!-- 1. Facultad o-- Departamento (aggregation, diamond at Facultad) -->
+        <mxCell id="ed1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=diamondThin;startFill=0;startSize=20;endArrow=none;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="facultad" target="departamento">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed1l1" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ed1">
+          <mxGeometry x="-0.75" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+        <mxCell id="ed1l2" value="*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ed1">
+          <mxGeometry x="0.75" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- 2. Departamento o-- Programa (aggregation, diamond at Departamento) -->
+        <mxCell id="ed2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=diamondThin;startFill=0;startSize=20;endArrow=none;exitX=1;exitY=0.3;entryX=0.5;entryY=0;" edge="1" parent="1" source="departamento" target="programa">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed2l1" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ed2">
+          <mxGeometry x="-0.75" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+        <mxCell id="ed2l2" value="*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ed2">
+          <mxGeometry x="0.75" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- 3. Departamento -- Administrativo (association) -->
+        <mxCell id="ed3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=none;endArrow=none;exitX=0.2;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="departamento" target="administrativo">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed3l1" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ed3">
+          <mxGeometry x="-0.75" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+        <mxCell id="ed3l2" value="*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ed3">
+          <mxGeometry x="0.75" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- 4. Departamento -- Profesor (association) -->
+        <mxCell id="ed4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=none;endArrow=none;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="departamento" target="profesor">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed4l1" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ed4">
+          <mxGeometry x="-0.75" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+        <mxCell id="ed4l2" value="*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ed4">
+          <mxGeometry x="0.75" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- 5. Administrativo --|> Persona (generalization) -->
+        <mxCell id="ed5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=none;endArrow=block;endFill=0;endSize=16;exitX=0.8;exitY=0;entryX=0.3;entryY=1;" edge="1" parent="1" source="administrativo" target="persona">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 6. Profesor --|> Persona (generalization) -->
+        <mxCell id="ed6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=none;endArrow=block;endFill=0;endSize=16;exitX=0.5;exitY=0;entryX=0.5;entryY=1;" edge="1" parent="1" source="profesor" target="persona">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 7. Estudiante --|> Persona (generalization) -->
+        <mxCell id="ed7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=none;endArrow=block;endFill=0;endSize=16;exitX=0.2;exitY=0;entryX=0.9;entryY=1;" edge="1" parent="1" source="estudiante" target="persona">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 8. Edificio *--  Aula (composition, diamond at Edificio) -->
+        <mxCell id="ed8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=diamond;startFill=1;startSize=18;endArrow=none;exitX=0.7;exitY=1;entryX=0.3;entryY=0;" edge="1" parent="1" source="edificio" target="aula">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed8l1" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ed8">
+          <mxGeometry x="-0.75" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+        <mxCell id="ed8l2" value="*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ed8">
+          <mxGeometry x="0.75" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- 9. Biblioteca o-- Libro (aggregation, diamond at Biblioteca) -->
+        <mxCell id="ed9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=diamondThin;startFill=0;startSize=20;endArrow=none;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="biblioteca" target="libro">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed9l1" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ed9">
+          <mxGeometry x="-0.75" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+        <mxCell id="ed9l2" value="*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ed9">
+          <mxGeometry x="0.75" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- 10. Programa *-- Curso (composition, diamond at Programa) -->
+        <mxCell id="ed10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=diamond;startFill=1;startSize=18;endArrow=none;exitX=0.3;exitY=1;entryX=0.7;entryY=0;" edge="1" parent="1" source="programa" target="curso">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed10l1" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ed10">
+          <mxGeometry x="-0.75" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+        <mxCell id="ed10l2" value="*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ed10">
+          <mxGeometry x="0.75" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- 11. Curso *-- Grupo (composition, diamond at Curso) -->
+        <mxCell id="ed11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=diamond;startFill=1;startSize=18;endArrow=none;exitX=0.5;exitY=1;entryX=0.7;entryY=0;" edge="1" parent="1" source="curso" target="grupo">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed11l1" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ed11">
+          <mxGeometry x="-0.75" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+        <mxCell id="ed11l2" value="*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ed11">
+          <mxGeometry x="0.75" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- 12. Aula -- Grupo (association) -->
+        <mxCell id="ed12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=none;endArrow=none;exitX=0.5;exitY=1;entryX=0.3;entryY=0;" edge="1" parent="1" source="aula" target="grupo">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed12l1" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ed12">
+          <mxGeometry x="-0.75" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+        <mxCell id="ed12l2" value="*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ed12">
+          <mxGeometry x="0.75" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- 13. Profesor -- Grupo "dicta" (association) -->
+        <mxCell id="ed13" value="dicta" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=none;endArrow=none;exitX=0.5;exitY=1;entryX=0.2;entryY=0;" edge="1" parent="1" source="profesor" target="grupo">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed13l1" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ed13">
+          <mxGeometry x="-0.75" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+        <mxCell id="ed13l2" value="*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ed13">
+          <mxGeometry x="0.75" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- 14. PeriodoAcademico o-- Horario (aggregation, diamond at PeriodoAcademico) -->
+        <mxCell id="ed14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=diamondThin;startFill=0;startSize=20;endArrow=none;exitX=0.3;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="periodo" target="horario">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed14l1" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ed14">
+          <mxGeometry x="-0.75" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+        <mxCell id="ed14l2" value="*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ed14">
+          <mxGeometry x="0.75" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- 15. Grupo -- Matricula (association) -->
+        <mxCell id="ed15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=none;endArrow=none;exitX=0.4;exitY=1;entryX=0.6;entryY=0;" edge="1" parent="1" source="grupo" target="matricula">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed15l1" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ed15">
+          <mxGeometry x="-0.75" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+        <mxCell id="ed15l2" value="*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ed15">
+          <mxGeometry x="0.75" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- 16. Estudiante -- Matricula (association) -->
+        <mxCell id="ed16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=none;endArrow=none;exitX=0.2;exitY=1;entryX=1;entryY=0.3;" edge="1" parent="1" source="estudiante" target="matricula">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed16l1" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ed16">
+          <mxGeometry x="-0.75" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+        <mxCell id="ed16l2" value="*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ed16">
+          <mxGeometry x="0.75" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- 17. Libro -- Prestamo (association) -->
+        <mxCell id="ed17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=none;endArrow=none;exitX=0.5;exitY=1;entryX=0.7;entryY=0;" edge="1" parent="1" source="libro" target="prestamo">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed17l1" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ed17">
+          <mxGeometry x="-0.75" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+        <mxCell id="ed17l2" value="*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ed17">
+          <mxGeometry x="0.75" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- 18. Estudiante -- Prestamo (association) -->
+        <mxCell id="ed18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=none;endArrow=none;exitX=0.3;exitY=0;entryX=0.8;entryY=1;" edge="1" parent="1" source="estudiante" target="prestamo">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed18l1" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ed18">
+          <mxGeometry x="-0.75" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+        <mxCell id="ed18l2" value="*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ed18">
+          <mxGeometry x="0.75" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- 19. Estudiante -- Evaluacion (association) -->
+        <mxCell id="ed19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=none;endArrow=none;exitX=1;exitY=0.3;entryX=0.3;entryY=1;" edge="1" parent="1" source="estudiante" target="evaluacion">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed19l1" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ed19">
+          <mxGeometry x="-0.75" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+        <mxCell id="ed19l2" value="*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ed19">
+          <mxGeometry x="0.75" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <!-- 20. Evaluacion o-- Calificacion (aggregation, diamond at Evaluacion) -->
+        <mxCell id="ed20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=diamondThin;startFill=0;startSize=20;endArrow=none;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="evaluacion" target="calificacion">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed20l1" value="*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ed20">
+          <mxGeometry x="-0.75" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+        <mxCell id="ed20l2" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ed20">
+          <mxGeometry x="0.75" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

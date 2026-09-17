@@ -1,0 +1,20 @@
+# torch y torchvision se instalan aparte, con el indice de CUDA:
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu126
+
+diffusers>=0.35
+transformers>=4.49
+accelerate>=1.0
+safetensors>=0.4
+huggingface_hub>=0.26
+
+# Flux: lectura de pesos GGUF y tokenizador de T5
+gguf>=0.10
+sentencepiece>=0.2
+protobuf>=4.25
+
+# Cuantizacion NF4 del codificador T5 (baja de ~9.8 GB a ~3 GB)
+bitsandbytes>=0.45
+
+opencv-python>=4.10
+pillow>=10.4
+anthropic>=0.40
