@@ -13,6 +13,83 @@ const costumeTitle = document.getElementById('costumeTitle');
 const singleCostume = document.getElementById('singleCostume');
 const pairCostume = document.getElementById('pairCostume');
 let analysisRequest = 0;
+
+// La foto activa. Puede venir del selector de archivos o de la cámara, y a
+// partir de aquí el resto del flujo la trata igual.
+let fotoActual = null;
+
+const abrirCamara = document.getElementById('abrirCamara');
+const camara = document.getElementById('camara');
+const video = document.getElementById('video');
+const camaraAviso = document.getElementById('camaraAviso');
+const capturar = document.getElementById('capturar');
+const cerrarCamara = document.getElementById('cerrarCamara');
+const previsualizacion = document.getElementById('previsualizacion');
+const previsualizacionImg = document.getElementById('previsualizacionImg');
+const repetirFoto = document.getElementById('repetirFoto');
+
+let flujo = null;
+
+function detenerCamara() {
+  if (flujo) {
+    flujo.getTracks().forEach(pista => pista.stop());
+    flujo = null;
+  }
+  video.srcObject = null;
+  camara.classList.add('hidden');
+}
+
+abrirCamara.addEventListener('click', async () => {
+  camara.classList.remove('hidden');
+  camaraAviso.textContent = 'Pidiendo permiso para usar la cámara...';
+  try {
+    flujo = await navigator.mediaDevices.getUserMedia({
+      video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' },
+      audio: false
+    });
+    video.srcObject = flujo;
+    camaraAviso.textContent = 'Colócate de frente, con luz en la cara.';
+  } catch (error) {
+    camaraAviso.textContent =
+      'No se pudo abrir la cámara: ' + error.message +
+      '. Comprueba que ninguna otra aplicación la esté usando.';
+  }
+});
+
+cerrarCamara.addEventListener('click', detenerCamara);
+
+capturar.addEventListener('click', () => {
+  if (!video.videoWidth) {
+    camaraAviso.textContent = 'La cámara todavía no da imagen, espera un momento.';
+    return;
+  }
+
+  const lienzo = document.createElement('canvas');
+  lienzo.width = video.videoWidth;
+  lienzo.height = video.videoHeight;
+  const contexto = lienzo.getContext('2d');
+
+  // La vista previa va en espejo porque es más natural para encuadrarse, así
+  // que aquí se invierte de vuelta: si no, la foto saldría del revés.
+  contexto.translate(lienzo.width, 0);
+  contexto.scale(-1, 1);
+  contexto.drawImage(video, 0, 0);
+
+  lienzo.toBlob(blob => {
+    const archivo = new File([blob], 'camara.jpg', { type: 'image/jpeg' });
+    detenerCamara();
+    usarFoto(archivo);
+  }, 'image/jpeg', 0.95);
+});
+
+repetirFoto.addEventListener('click', () => {
+  previsualizacion.classList.add('hidden');
+  fotoActual = null;
+  photo.value = '';
+  fileName.textContent = '';
+  photoAnalysis.classList.add('hidden');
+  abrirCamara.click();
+});
 let analyzingPhoto = false;
 
 function syncCostumeMode() {
@@ -28,15 +105,22 @@ document.querySelectorAll('input[name="peopleCount"]').forEach(
 syncCostumeMode();
 
 strength.addEventListener('input', () => strengthValue.textContent = Number(strength.value).toFixed(2));
-photo.addEventListener('change', async () => {
-  const f = photo.files[0];
+photo.addEventListener('change', () => usarFoto(photo.files[0]));
+
+/** Fija la foto activa y lanza su análisis, venga de donde venga. */
+async function usarFoto(f) {
+  fotoActual = f || null;
   fileName.textContent = f ? `${f.name} · ${(f.size / 1048576).toFixed(2)} MB` : '';
   const requestId = ++analysisRequest;
 
   if (!f) {
     photoAnalysis.classList.add('hidden');
+    previsualizacion.classList.add('hidden');
     return;
   }
+
+  previsualizacionImg.src = URL.createObjectURL(f);
+  previsualizacion.classList.remove('hidden');
 
   analyzingPhoto = true;
   generate.disabled = true;
@@ -113,7 +197,7 @@ photo.addEventListener('change', async () => {
       generate.disabled = false;
     }
   }
-});
+}
 
 async function checkStatus() {
   try {
@@ -133,8 +217,8 @@ async function checkStatus() {
 }
 
 async function generateImage() {
-  const f = photo.files[0];
-  if (!f) return alert('Selecciona una fotografía primero.');
+  const f = fotoActual;
+  if (!f) return alert('Elige una fotografía o tómala con la cámara primero.');
   if (analyzingPhoto) return alert('Espera a que termine el análisis automático.');
 
   const form = new FormData();

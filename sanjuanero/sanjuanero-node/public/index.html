@@ -11,7 +11,7 @@
     <header>
       <div>
         <h1>Retro 80s IA</h1>
-        <p>Retrato de estudio de 1985 · FastSD CPU + FLUX.2 Klein 4B</p>
+        <p>Escenas de los años 80 · generación local en la GPU</p>
       </div>
       <span id="status" class="badge">Comprobando...</span>
     </header>
@@ -24,6 +24,26 @@
         <strong>Seleccionar fotografía</strong>
         <small>JPG, PNG o WEBP · máximo 12 MB</small>
       </label>
+
+      <div class="o-bien">o</div>
+      <button id="abrirCamara" type="button" class="secundario">
+        📸 Tomar la foto con la cámara
+      </button>
+
+      <div id="camara" class="camara hidden">
+        <video id="video" autoplay playsinline muted></video>
+        <div id="camaraAviso" class="camara-aviso"></div>
+        <div class="camara-botones">
+          <button id="capturar" type="button">Capturar</button>
+          <button id="cerrarCamara" type="button" class="secundario">Cancelar</button>
+        </div>
+      </div>
+
+      <div id="previsualizacion" class="previsualizacion hidden">
+        <img id="previsualizacionImg" alt="Foto elegida">
+        <button id="repetirFoto" type="button" class="secundario">Repetir</button>
+      </div>
+
       <div id="fileName" class="file"></div>
       <div id="photoAnalysis" class="analysis hidden"></div>
     </section>
@@ -52,7 +72,7 @@
 
     <section class="card">
       <h2>4. Identidad</h2>
-      <p class="help">Controla cuánto se parece el rostro final a tu foto. Bajo = mezcla suave. Alto = tu cara casi completa. En CPU tarda unos 10 minutos.</p>
+      <p class="help">Controla cuánto se parece el rostro final a tu foto. Bajo = mezcla suave. Alto = tu cara casi completa. Cada escena tarda menos de un minuto.</p>
       <input id="strength" type="range" min="0.15" max="0.50" value="0.30" step="0.01">
       <div class="strength-labels"><span>Suave</span><span id="strengthValue">0.30</span><span>Tu cara</span></div>
     </section>

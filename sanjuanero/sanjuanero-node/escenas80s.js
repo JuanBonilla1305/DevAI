@@ -46,11 +46,21 @@ const NEGATIVO_MUJER = ", man, male, masculine face, beard, moustache, stubble, 
 // más lejos está la persona, más pequeña sale la cara y peor la dibuja el
 // modelo. Los planos medios dan caras mejores y el intercambio encaja mejor.
 
+// Los planos cercanos aparecen repetidos a propósito: es una forma sencilla
+// de darles más peso en el sorteo. Importa porque InSwapper trabaja a
+// 128x128, así que cuantos más píxeles ocupe la cara en la imagen generada,
+// mejor se transfiere la identidad. En un plano entero la cara queda tan
+// pequeña que el parecido casi se pierde.
 const ENCUADRES = [
     { nombre: "cuerpo_entero", texto: "full body shot, standing, both hands in the pockets of the jeans, confident relaxed posture, looking at the camera" },
     { nombre: "tres_cuartos", texto: "three-quarter body shot from the thighs up, one hand on the hip, weight on one leg, looking at the camera" },
-    { nombre: "medio", texto: "medium shot from the waist up, arms crossed, slight smile, looking at the camera" },
-    { nombre: "pecho", texto: "chest-up portrait, one hand adjusting the collar of the jacket, looking at the camera" },
+    { nombre: "tres_cuartos", texto: "three-quarter body shot from the thighs up, one hand on the hip, weight on one leg, looking at the camera" },
+    { nombre: "medio", texto: "medium shot from the waist up, arms crossed, slight smile, looking straight at the camera, face clearly visible and well lit" },
+    { nombre: "medio", texto: "medium shot from the waist up, arms crossed, slight smile, looking straight at the camera, face clearly visible and well lit" },
+    { nombre: "medio", texto: "medium shot from the waist up, arms crossed, slight smile, looking straight at the camera, face clearly visible and well lit" },
+    { nombre: "pecho", texto: "chest-up portrait, one hand adjusting the collar of the jacket, looking straight at the camera, face large in the frame and well lit" },
+    { nombre: "pecho", texto: "chest-up portrait, one hand adjusting the collar of the jacket, looking straight at the camera, face large in the frame and well lit" },
+    { nombre: "pecho", texto: "chest-up portrait, one hand adjusting the collar of the jacket, looking straight at the camera, face large in the frame and well lit" },
     { nombre: "apoyado", texto: "three-quarter shot leaning back against the wall, arms loosely crossed, looking at the camera" },
 ];
 
