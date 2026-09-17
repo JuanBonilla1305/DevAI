@@ -1,80 +1,413 @@
-*{box-sizing:border-box}body{margin:0;background:#f5f7fb;color:#202124;font-family:Segoe UI,Arial,sans-serif}.app{width:min(950px,calc(100% - 30px));margin:28px auto 50px}header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}h1{margin:0;font-size:34px}header p{margin:5px 0;color:#666}.badge{padding:8px 13px;border-radius:999px;background:#eee;font-size:13px}.badge.ok{background:#e6f6ea;color:#167333}.badge.err{background:#fde7e9;color:#b42318}.card{background:#fff;border:1px solid #e2e5ea;border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 5px 18px #00000008}h2{margin:0 0 14px;font-size:19px}.drop{min-height:180px;border:2px dashed #b9c1cc;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer}.drop:hover{background:#fafbff;border-color:#606ee6}.drop input{display:none}.icon{font-size:42px}.drop small,.choice small,.help,footer{color:#70757a}.file{margin-top:10px;font-size:14px}.analysis{margin-top:10px;padding:10px 12px;border-radius:9px;font-size:13px}.analysis.pending{background:#eef3ff;color:#3156a3}.analysis.ok{background:#e6f6ea;color:#167333}.analysis.warn{background:#fff4dc;color:#805500}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.choice{display:flex;align-items:center;gap:11px;border:1px solid #e1e4e8;border-radius:12px;padding:13px;margin:8px 0;cursor:pointer}.choice span{display:flex;flex-direction:column;gap:3px}.choice input{width:18px;height:18px}.help{font-size:14px}#strength{width:100%}.strength-labels{display:flex;justify-content:space-between;align-items:center;margin-top:7px;font-size:13px;color:#70757a}#strengthValue{font-weight:700;color:#202124}button,#download{width:100%;border:0;border-radius:14px;padding:17px;background:#222;color:#fff;font-size:17px;font-weight:700;cursor:pointer;text-align:center;text-decoration:none;display:block;margin-bottom:16px}button:disabled{opacity:.55;cursor:not-allowed}.hidden{display:none!important}.spinner{width:30px;height:30px;border:3px solid #ddd;border-top-color:#222;border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}#loading{display:flex;gap:15px;align-items:center}#loading p{margin:4px 0;color:#666;font-size:13px}#resultImage{display:block;width:min(100%,650px);max-height:850px;object-fit:contain;margin:0 auto 18px;border-radius:12px;background:#eee}footer{text-align:center;font-size:12px}@media(max-width:700px){.grid{grid-template-columns:1fr}header{align-items:flex-start;gap:10px;flex-direction:column}}
+/* =====================================================================
+   Retro 80s IA — estética synthwave
+   =====================================================================
 
-/* --- Captura con la cámara --- */
+   Sin fuentes de Google ni nada externo: el programa tiene que arrancar
+   sin internet, y una hoja de estilos esperando a un servidor caído deja
+   la página en blanco justo cuando hay gente mirando.
+
+   Se usan familias que ya vienen en Windows: Impact para los títulos y
+   Consolas para los números.
+
+   Fondo oscuro con cuadrícula en perspectiva, neón magenta y cian, y
+   scanlines muy sutiles. Los textos se mantienen legibles a propósito:
+   es una aplicación que alguien tiene que usar de pie y con prisa.
+   ===================================================================== */
+
+:root {
+  --magenta: #ff2e97;
+  --cian: #00e5ff;
+  --violeta: #7b2ff7;
+  --amarillo: #ffd23f;
+  --fondo: #140024;
+  --fondo-carta: #1f0733;
+  --borde: #3d1361;
+  --texto: #f4e9ff;
+  --apagado: #b9a0d4;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  color: var(--texto);
+  font-family: "Segoe UI", Verdana, Arial, sans-serif;
+  background:
+    /* El sol ochentero, detrás de todo */
+    radial-gradient(circle at 50% 118%,
+      #ff6b35 0%, #ff2e97 18%, transparent 48%),
+    linear-gradient(180deg, #0b0016 0%, #140024 45%, #2b0a4a 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Cuadrícula en perspectiva al fondo de la página */
+body::before {
+  content: "";
+  position: fixed;
+  left: -50%;
+  right: -50%;
+  bottom: 0;
+  height: 45vh;
+  background-image:
+    linear-gradient(var(--magenta) 1px, transparent 1px),
+    linear-gradient(90deg, var(--magenta) 1px, transparent 1px);
+  background-size: 60px 60px;
+  transform: perspective(28vh) rotateX(62deg);
+  transform-origin: bottom center;
+  opacity: 0.22;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Scanlines de televisor viejo. Muy suaves: si se notan, cansan. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    180deg, rgba(0,0,0,.16) 0 1px, transparent 1px 3px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.app {
+  width: min(950px, calc(100% - 30px));
+  margin: 30px auto 60px;
+  position: relative;
+  z-index: 2;
+}
+
+/* --- Cabecera --- */
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 26px;
+}
+
+h1 {
+  margin: 0;
+  font-family: Impact, "Arial Black", sans-serif;
+  font-size: 46px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  background: linear-gradient(180deg,
+    #fff 0%, var(--cian) 42%, var(--magenta) 62%, var(--violeta) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  /* El resplandor va en un drop-shadow y no en text-shadow: con el texto
+     recortado sobre el degradado, text-shadow se dibujaría por encima. */
+  filter: drop-shadow(0 0 14px rgba(255, 46, 151, .55));
+}
+
+header p {
+  margin: 6px 0 0;
+  color: var(--apagado);
+  font-size: 14px;
+  letter-spacing: .5px;
+}
+
+/* --- Estado --- */
+
+.badge {
+  padding: 9px 15px;
+  border-radius: 999px;
+  background: #2a0b47;
+  border: 1px solid var(--borde);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+.badge.ok {
+  color: #26ffa8;
+  border-color: #26ffa8;
+  box-shadow: 0 0 14px rgba(38, 255, 168, .3);
+}
+
+.badge.err {
+  color: #ff5c7a;
+  border-color: #ff5c7a;
+  box-shadow: 0 0 14px rgba(255, 92, 122, .3);
+}
+
+/* --- Tarjetas --- */
+
+.card {
+  background: linear-gradient(160deg, var(--fondo-carta), #16052a);
+  border: 1px solid var(--borde);
+  border-radius: 14px;
+  padding: 22px;
+  margin-bottom: 18px;
+  box-shadow: 0 0 0 1px rgba(255,46,151,.08), 0 14px 40px rgba(0,0,0,.45);
+}
+
+h2 {
+  margin: 0 0 16px;
+  font-family: Impact, "Arial Black", sans-serif;
+  font-size: 17px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--cian);
+  text-shadow: 0 0 12px rgba(0, 229, 255, .45);
+}
+
+/* --- Zona de la foto --- */
+
+.drop {
+  min-height: 170px;
+  border: 2px dashed var(--borde);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  background: rgba(0,0,0,.2);
+  transition: border-color .2s, background .2s;
+}
+
+.drop:hover {
+  border-color: var(--magenta);
+  background: rgba(255, 46, 151, .07);
+}
+
+.drop input { display: none; }
+.drop strong { letter-spacing: 1px; text-transform: uppercase; }
+.icon { font-size: 44px; filter: drop-shadow(0 0 10px var(--magenta)); }
+
+.drop small, .choice small, .help, footer, .o-bien, .camara-aviso, .tiempo {
+  color: var(--apagado);
+}
+
+.file { margin-top: 12px; font-size: 13px; color: var(--apagado); }
+
 .o-bien {
   text-align: center;
-  color: #888;
-  font-size: 0.85rem;
-  margin: 10px 0 8px;
+  font-size: .8rem;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin: 14px 0 10px;
 }
+
+/* --- Análisis --- */
+
+.analysis {
+  margin-top: 12px;
+  padding: 11px 13px;
+  border-radius: 8px;
+  font-size: 13px;
+  border-left: 3px solid;
+}
+
+.analysis.pending { background: rgba(0,229,255,.09);  border-color: var(--cian);     color: var(--cian); }
+.analysis.ok      { background: rgba(38,255,168,.09); border-color: #26ffa8;          color: #26ffa8; }
+.analysis.warn    { background: rgba(255,210,63,.09); border-color: var(--amarillo);  color: var(--amarillo); }
+
+/* --- Opciones --- */
+
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+
+.choice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  padding: 13px;
+  margin: 9px 0;
+  cursor: pointer;
+  background: rgba(0,0,0,.18);
+  transition: border-color .15s, background .15s;
+}
+
+.choice:hover { border-color: var(--magenta); background: rgba(255,46,151,.07); }
+
+/* El seleccionado tiene que cantar: en una feria se elige de un vistazo. */
+.choice:has(input:checked) {
+  border-color: var(--cian);
+  background: rgba(0,229,255,.12);
+  box-shadow: 0 0 16px rgba(0,229,255,.2);
+}
+
+.choice span { display: flex; flex-direction: column; gap: 3px; }
+.choice b { letter-spacing: .5px; }
+.choice input { width: 18px; height: 18px; accent-color: var(--magenta); }
+
+.help { font-size: 13px; line-height: 1.5; }
+
+#strength { width: 100%; accent-color: var(--magenta); }
+
+.strength-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--apagado);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+#strengthValue {
+  font-family: Consolas, "Courier New", monospace;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--cian);
+}
+
+/* --- Botones --- */
+
+button, #download {
+  width: 100%;
+  border: 0;
+  border-radius: 10px;
+  padding: 18px;
+  background: linear-gradient(95deg, var(--magenta), var(--violeta));
+  color: #fff;
+  font-family: Impact, "Arial Black", sans-serif;
+  font-size: 19px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  display: block;
+  margin-bottom: 16px;
+  box-shadow: 0 0 22px rgba(255,46,151,.4);
+  transition: transform .12s, box-shadow .12s;
+}
+
+button:hover:not(:disabled), #download:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 34px rgba(255,46,151,.65);
+}
+
+button:disabled { opacity: .4; cursor: not-allowed; box-shadow: none; }
 
 button.secundario {
-  background: #f1f1f4;
-  color: #333;
-  border: 1px solid #ddd;
+  background: transparent;
+  border: 1px solid var(--cian);
+  color: var(--cian);
+  box-shadow: none;
+  font-size: 15px;
 }
 
-button.secundario:hover { background: #e7e7ec; }
+button.secundario:hover:not(:disabled) {
+  background: rgba(0,229,255,.12);
+  box-shadow: 0 0 20px rgba(0,229,255,.3);
+}
 
-.camara { margin-top: 12px; }
+/* --- Cámara --- */
+
+.camara { margin-top: 14px; }
 
 .camara video {
   width: 100%;
   border-radius: 10px;
-  background: #111;
+  background: #000;
+  border: 1px solid var(--borde);
   /* En espejo: uno se encuadra mucho mejor viéndose como en un espejo.
      Al capturar se invierte de vuelta para que la foto no salga al revés. */
   transform: scaleX(-1);
 }
 
-.camara-aviso {
-  font-size: 0.85rem;
-  color: #666;
-  margin: 8px 0;
-  text-align: center;
-}
-
-.camara-botones {
-  display: flex;
-  gap: 10px;
-}
-
+.camara-aviso { font-size: .85rem; margin: 10px 0; text-align: center; }
+.camara-botones { display: flex; gap: 10px; }
 .camara-botones button { flex: 1; }
 
-.previsualizacion { margin-top: 12px; }
+.previsualizacion { margin-top: 14px; }
 
 .previsualizacion img {
   width: 100%;
   border-radius: 10px;
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+  border: 1px solid var(--borde);
 }
 
-.hidden { display: none; }
+/* --- Espera --- */
 
-/* --- Espera de la generación --- */
+.hidden { display: none !important; }
+
+.spinner {
+  width: 34px;
+  height: 34px;
+  border: 3px solid rgba(255,255,255,.12);
+  border-top-color: var(--magenta);
+  border-right-color: var(--cian);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+#loading { display: flex; gap: 18px; align-items: center; }
+#loading p { margin: 5px 0; color: var(--apagado); font-size: 13px; }
+#loading b { color: var(--cian); letter-spacing: 1px; }
+
 .cargando-texto { flex: 1; }
 
 .barra {
-  height: 6px;
-  background: #e8e8ee;
-  border-radius: 3px;
+  height: 8px;
+  background: rgba(0,0,0,.4);
+  border: 1px solid var(--borde);
+  border-radius: 4px;
   overflow: hidden;
-  margin: 10px 0 6px;
+  margin: 12px 0 7px;
 }
 
 #barraProgreso {
   height: 100%;
   width: 0;
-  background: #6c5ce7;
-  border-radius: 3px;
+  background: linear-gradient(90deg, var(--cian), var(--magenta));
+  box-shadow: 0 0 12px var(--magenta);
   transition: width 1s linear;
 }
 
-.tiempo {
-  font-size: 0.8rem;
-  color: #888;
-  margin: 0;
+.tiempo { font-size: .8rem; margin: 0; }
+
+#cargandoReloj {
+  font-family: Consolas, "Courier New", monospace;
+  font-variant-numeric: tabular-nums;
+  color: var(--cian);
+  font-weight: 700;
 }
 
-#cargandoReloj { font-variant-numeric: tabular-nums; }
+/* --- Resultado --- */
+
+#resultImage {
+  display: block;
+  width: min(100%, 650px);
+  max-height: 850px;
+  object-fit: contain;
+  margin: 0 auto 20px;
+  border-radius: 10px;
+  background: #000;
+  border: 1px solid var(--borde);
+  box-shadow: 0 0 40px rgba(255,46,151,.28);
+}
+
+footer {
+  text-align: center;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-top: 24px;
+}
+
+/* --- Pantallas estrechas --- */
+
+@media (max-width: 700px) {
+  .grid { grid-template-columns: 1fr; }
+  header { align-items: flex-start; gap: 12px; flex-direction: column; }
+  h1 { font-size: 34px; }
+}
