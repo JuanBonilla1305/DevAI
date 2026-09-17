@@ -30,7 +30,11 @@ const NEGATIVO =
     "deformed face, distorted face, extra faces, two heads, extra limbs, " +
     "modern clothing, hoodie, smartphone, headphones, headset, " +
     "blurry, lowres, jpeg artifacts, text, watermark, signature, " +
-    "cartoon, 3d render, illustration, painting";
+    "cartoon, 3d render, illustration, painting, " +
+    // Todo lo que empuje el plano hacia atras: las escenas son de cintura
+    // para arriba y el modelo tiende a alejarse si ve piernas o calzado.
+    "full body, legs, knees, feet, shoes, trousers, wide shot, distant figure, " +
+    "small face, face in shadow, back turned, profile view";
 
 // SD 1.5 se va de género con facilidad: con un chaleco de rombos o una
 // melena con volumen dibuja una mujer aunque el prompt diga "a man". Hay que
@@ -46,23 +50,34 @@ const NEGATIVO_MUJER = ", man, male, masculine face, beard, moustache, stubble, 
 // más lejos está la persona, más pequeña sale la cara y peor la dibuja el
 // modelo. Los planos medios dan caras mejores y el intercambio encaja mejor.
 
-// Los planos cercanos aparecen repetidos a propósito: es una forma sencilla
-// de darles más peso en el sorteo. Importa porque InSwapper trabaja a
+// Todos los encuadres son de cintura para arriba. La variedad está en la
+// pose y en los brazos, no en la distancia.
+//
+// Además de ser lo que se pidió, ayuda al parecido: InSwapper trabaja a
 // 128x128, así que cuantos más píxeles ocupe la cara en la imagen generada,
-// mejor se transfiere la identidad. En un plano entero la cara queda tan
-// pequeña que el parecido casi se pierde.
+// mejor se transfiere la identidad. En un plano entero la cara acababa
+// ocupando cuarenta o cincuenta píxeles y el parecido se perdía.
+//
+// Se repite en todos "face clearly visible and well lit": sin eso el modelo
+// tiende a poner la cara en sombra o de perfil, y entonces el intercambio
+// no encuentra rostro y se salta.
+const CARA = "looking straight at the camera, face clearly visible and well lit";
+
 const ENCUADRES = [
-    { nombre: "cuerpo_entero", texto: "full body shot, standing, both hands in the pockets of the jeans, confident relaxed posture, looking at the camera" },
-    { nombre: "tres_cuartos", texto: "three-quarter body shot from the thighs up, one hand on the hip, weight on one leg, looking at the camera" },
-    { nombre: "tres_cuartos", texto: "three-quarter body shot from the thighs up, one hand on the hip, weight on one leg, looking at the camera" },
-    { nombre: "medio", texto: "medium shot from the waist up, arms crossed, slight smile, looking straight at the camera, face clearly visible and well lit" },
-    { nombre: "medio", texto: "medium shot from the waist up, arms crossed, slight smile, looking straight at the camera, face clearly visible and well lit" },
-    { nombre: "medio", texto: "medium shot from the waist up, arms crossed, slight smile, looking straight at the camera, face clearly visible and well lit" },
-    { nombre: "pecho", texto: "chest-up portrait, one hand adjusting the collar of the jacket, looking straight at the camera, face large in the frame and well lit" },
-    { nombre: "pecho", texto: "chest-up portrait, one hand adjusting the collar of the jacket, looking straight at the camera, face large in the frame and well lit" },
-    { nombre: "pecho", texto: "chest-up portrait, one hand adjusting the collar of the jacket, looking straight at the camera, face large in the frame and well lit" },
-    { nombre: "apoyado", texto: "three-quarter shot leaning back against the wall, arms loosely crossed, looking at the camera" },
+    { nombre: "brazos_cruzados", texto: `waist-up shot, arms crossed, confident relaxed posture, slight smile, ${CARA}` },
+    { nombre: "manos_bolsillos", texto: `waist-up shot, thumbs hooked in the pockets, shoulders squared, ${CARA}` },
+    { nombre: "cuello", texto: `waist-up shot, one hand adjusting the collar of the jacket, ${CARA}` },
+    { nombre: "apoyado", texto: `waist-up shot leaning back against the wall, arms loosely crossed, ${CARA}` },
+    { nombre: "gafas", texto: `waist-up shot, one hand lowering the sunglasses slightly, amused expression, ${CARA}` },
+    { nombre: "pecho", texto: `chest-up portrait, head tilted slightly, face large in the frame, ${CARA}` },
+    { nombre: "hombro", texto: `waist-up shot turned slightly to one side with the head facing forward, one hand on the hip, ${CARA}` },
+    { nombre: "mano_pelo", texto: `waist-up shot, one hand running through the hair, relaxed smile, ${CARA}` },
+    { nombre: "brazo_alzado", texto: `waist-up shot with one forearm resting on a raised surface, body turned slightly, ${CARA}` },
 ];
+// Se descartó un encuadre "sentado en un taburete": aunque el texto pidiera
+// cintura para arriba, la pose arrastra piernas y el modelo abría el plano
+// para encajarlas, incluso con "legs" y "knees" en el prompt negativo. Una
+// pose que implica el cuerpo entero pesa más que la instrucción de encuadre.
 
 // ---------------------------------------------------------------------
 // Ambientes
@@ -88,12 +103,15 @@ const PELO_HOMBRE = [
     "slicked-back 1980s hair with wings at the sides, and a trimmed moustache",
 ];
 
+// Solo prendas que se ven de cintura para arriba: nombrar pantalones o
+// zapatos empuja al modelo a abrir el plano para encajarlos.
 const ROPA_HOMBRE = [
-    "an acid-wash denim jacket with magenta and teal colour-blocked panels, open over a teal graphic t-shirt printed with a sunset and palm trees, a gold chain, high-waisted acid-wash jeans with a leather belt",
-    "a pastel blazer with heavy padded shoulders and rolled-up sleeves over a white t-shirt, thin leather tie, pleated trousers",
-    "a red leather bomber jacket with zips over a black t-shirt, gold chain, dark jeans",
-    "a turquoise and purple windbreaker track jacket with geometric stripes, white t-shirt underneath, white sneakers",
-    "a knitted argyle sweater vest over a wide-collared shirt, corduroy trousers",
+    "an acid-wash denim jacket with magenta and teal colour-blocked panels, open over a teal graphic t-shirt printed with a sunset and palm trees, a gold chain",
+    "a pastel blazer with heavy padded shoulders and rolled-up sleeves over a white t-shirt, a thin leather tie",
+    "a red leather bomber jacket with zips over a black t-shirt, a gold chain",
+    "a turquoise and purple windbreaker track jacket with bold geometric stripes over a white t-shirt",
+    "a knitted argyle sweater vest over a wide-collared striped shirt",
+    "a pale blue denim jacket with the collar up over a white polo shirt, aviator sunglasses hanging from the neckline",
 ];
 
 const GAFAS_HOMBRE = [
@@ -115,11 +133,12 @@ const PELO_MUJER = [
 ];
 
 const ROPA_MUJER = [
-    "an oversized acid-wash denim jacket with magenta and teal panels over a bright turquoise top, huge gold hoop earrings, high-waisted jeans",
-    "a bright pink blazer with enormous padded shoulders over a white blouse, a thin belt, a pencil skirt, gold statement earrings",
-    "a turquoise off-the-shoulder sweatshirt, neon leg warmers, a wide elastic belt, chunky plastic bangles",
-    "a purple satin blouse with a wide collar and shoulder pads, a gold chain belt, big hoop earrings",
-    "a magenta and teal geometric-print dress with padded shoulders, chunky colourful jewellery",
+    "an oversized acid-wash denim jacket with magenta and teal panels over a bright turquoise top, huge gold hoop earrings",
+    "a bright pink blazer with enormous padded shoulders over a white blouse, gold statement earrings",
+    "a turquoise off-the-shoulder sweatshirt, chunky plastic bangles, big hoop earrings",
+    "a purple satin blouse with a wide collar and heavy shoulder pads, a gold chain necklace",
+    "a magenta and teal geometric-print top with padded shoulders, chunky colourful jewellery",
+    "a white blouse with a huge ruffled collar under a teal cropped jacket, pearl earrings",
 ];
 
 const GAFAS_MUJER = [

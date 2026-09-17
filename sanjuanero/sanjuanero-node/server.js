@@ -327,9 +327,10 @@ function buildFastSDBody(
         // de barrer parametros sobre fotos reales en una RTX 3050: a fuerza
         // 0.55 la persona sigue siendo reconocible, los objetos modernos
         // desaparecen y el retrato tarda menos de 4 segundos.
-        // Vertical y algo mas alto cuando la escena se genera entera, para
-        // que quepa el cuerpo sin aplastar la figura.
-        image_height: MOTOR_GPU ? (desdeCero ? 704 : 576) : 512,
+        // Vertical, pero sin exagerar el alto: las escenas son de cintura
+        // para arriba, y un lienzo muy alargado invita al modelo a meter
+        // cuerpo de mas y a alejar la cara.
+        image_height: MOTOR_GPU ? (desdeCero ? 640 : 576) : 512,
 
         image_width: MOTOR_GPU ? (desdeCero ? 512 : 448) : 384,
 
