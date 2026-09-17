@@ -2,7 +2,13 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "sanjuanero",
+      "name": "retro80s-gpu",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "start:gpu", "--prefix", "sanjuanero/sanjuanero-node"],
+      "port": 3000
+    },
+    {
+      "name": "retro80s-cpu",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["start", "--prefix", "sanjuanero/sanjuanero-node"],
       "port": 3000

@@ -104,18 +104,34 @@ const FASTSD_DIR = (() => {
     ) || candidatos[0];
 })();
 
-const FASTSD_PYTHON = path.join(
-    FASTSD_DIR,
-    "env",
-    "Scripts",
-    "python.exe"
-);
+// Por defecto se usa FastSD tal como lo entrego el profesor: OpenVINO sobre
+// CPU, unos 10 minutos por imagen. Con MOTOR_GPU=1 se levanta en su lugar
+// servidor_gpu.py, que responde exactamente la misma API pero genera en la
+// GPU en unos 6 segundos. server.js no nota la diferencia: lo unico que
+// cambia es a quien arranca y contra quien habla.
+const MOTOR_GPU = process.env.MOTOR_GPU === "1";
 
-const FASTSD_APP = path.join(
-    FASTSD_DIR,
-    "src",
-    "app.py"
-);
+const CAMARA80S_DIR = path.join(SANJUANERO_DIR, "..", "camara80s");
+
+// OJO: son dos interpretes distintos y no se pueden mezclar.
+//
+// FASTSD_PYTHON  entorno del profesor. Es el unico que tiene insightface,
+//                asi que SIEMPRE ejecuta los scripts de analisis facial y de
+//                intercambio de rostro, use el motor que use.
+// MOTOR_PYTHON   quien levanta el servidor de generacion en el puerto 8000.
+//                Con MOTOR_GPU=1 es el entorno de camara80s, que tiene
+//                PyTorch con CUDA.
+const FASTSD_PYTHON = path.join(FASTSD_DIR, "env", "Scripts", "python.exe");
+
+const MOTOR_PYTHON = MOTOR_GPU
+    ? path.join(CAMARA80S_DIR, ".venv", "Scripts", "python.exe")
+    : FASTSD_PYTHON;
+
+const FASTSD_APP = MOTOR_GPU
+    ? path.join(CAMARA80S_DIR, "servidor_gpu.py")
+    : path.join(FASTSD_DIR, "src", "app.py");
+
+const MOTOR_DIR = MOTOR_GPU ? CAMARA80S_DIR : FASTSD_DIR;
 
 const FASTSD_API = "http://127.0.0.1:8000";
 
@@ -289,13 +305,20 @@ function buildFastSDBody(prompt, initImage, isTwoPerson = false) {
         // FLUX.2 Klein no recibe strength en la rama edit_image de FastSD.
         strength: 0.90,
 
-        image_height: 512,
+        // FLUX.2 Klein trabaja con guidance 1.0 y muy pocos pasos. SD 1.5 en
+        // la GPU necesita lo contrario: guidance alto para que obedezca el
+        // prompt y algunos pasos mas. Los valores de abajo salieron de medir
+        // el barrido en una RTX 3050: a 12 pasos y guidance 12 el retrato
+        // queda ochentero y tarda menos de 7 segundos.
+        image_height: MOTOR_GPU ? 576 : 512,
 
-        image_width: 384,
+        image_width: MOTOR_GPU ? 448 : 384,
 
-        inference_steps: isTwoPerson ? 8 : 6,
+        inference_steps: MOTOR_GPU ? 12 : (isTwoPerson ? 8 : 6),
 
-        guidance_scale: 1.0,
+        guidance_scale: MOTOR_GPU ? 12.0 : 1.0,
+
+        image_guidance_scale: 1.2,
 
         clip_skip: 1,
 
@@ -423,10 +446,10 @@ function startFastSD() {
         return;
     }
 
-    if (!fs.existsSync(FASTSD_PYTHON)) {
+    if (!fs.existsSync(MOTOR_PYTHON)) {
         console.error("");
         console.error("ERROR: No existe:");
-        console.error(FASTSD_PYTHON);
+        console.error(MOTOR_PYTHON);
         console.error("");
         return;
     }
@@ -441,22 +464,24 @@ function startFastSD() {
 
     console.log("");
     console.log("==============================================");
-    console.log(" INICIANDO FASTSD CPU");
+    console.log(MOTOR_GPU
+        ? " INICIANDO MOTOR GPU (CUDA)"
+        : " INICIANDO FASTSD CPU");
     console.log("==============================================");
     console.log("Python:");
-    console.log(FASTSD_PYTHON);
+    console.log(MOTOR_PYTHON);
     console.log("");
     console.log("App:");
     console.log(FASTSD_APP);
     console.log("");
     console.log("Modelo:");
-    console.log(MODEL_ID);
+    console.log(MOTOR_GPU ? "instruct-pix2pix (CUDA)" : MODEL_ID);
     console.log("");
 
     fastsdStarting = true;
 
     fastsdProcess = spawn(
-        FASTSD_PYTHON,
+        MOTOR_PYTHON,
         [
             FASTSD_APP,
             "--api",
@@ -464,7 +489,7 @@ function startFastSD() {
             "8000"
         ],
         {
-            cwd: FASTSD_DIR,
+            cwd: MOTOR_DIR,
             env: {
                 ...process.env,
                 DEVICE: "CPU"
@@ -1148,8 +1173,19 @@ app.post(
                         detectedPeople[0] || null
                     );
 
+            // El tema sanjuanero genera un cuerpo entero bailando, asi que
+            // parte de una referencia de pose. El tema de los 80 es un
+            // retrato de busto: ahi la mejor base es la propia fotografia,
+            // que ya viene encuadrada como retrato. Usar la pose de baile
+            // daba como resultado la foto de referencia con un filtro encima,
+            // porque el modelo conserva la composicion de la imagen base.
+            const imagenBase =
+                TEMA === "sanjuanero"
+                    ? poseRefBase64
+                    : (fileToBase64(originalPath) || poseRefBase64);
+
             const initImages = [
-                poseRefBase64,
+                imagenBase,
                 ...headRefsBase64,
                 ...(costumeRefBase64 ? [costumeRefBase64] : [])
             ];

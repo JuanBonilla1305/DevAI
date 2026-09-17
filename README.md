@@ -34,7 +34,31 @@ al modelo que conserve la cara, genera el cuerpo y el vestuario y *después*
 pega la cara real con InSwapper.
 
 - [sanjuanero/sanjuanero-node/README.md](sanjuanero/sanjuanero-node/README.md) — documentación original
-- `sanjuanero/sanjuanero-node/prompts80s.js` — adaptación a los años 80 en curso
+- `sanjuanero/sanjuanero-node/prompts80s.js` — prompts de los años 80
+
+### El motor GPU
+
+El backend original usa OpenVINO, que corre en CPU: **unos 10 minutos por
+imagen**. `camara80s/servidor_gpu.py` responde exactamente la misma API en el
+puerto 8000, pero genera con CUDA: **6 segundos**. `server.js` no distingue la
+diferencia, solo cambia a quién arranca.
+
+```bash
+npm run start:gpu           # motor CUDA, ~6 s por imagen
+npm start                   # FastSD original en CPU, ~10 min
+npm run start:sanjuanero    # vuelve al tema del profesor
+```
+
+Medido en una RTX 3050 Laptop de 6 GB, a 448×576 y 12 pasos.
+
+Dos detalles que hubo que resolver:
+
+- **CLIP solo lee 77 tokens** y descarta el resto sin avisar; los prompts de
+  este proyecto pasan de 200. `servidor_gpu.py` trocea el texto en ventanas y
+  concatena los embeddings, así que el prompt entra completo.
+- **El tema de los 80 parte de tu propia fotografía**, no de una referencia de
+  pose. Usar la pose de baile daba como resultado esa misma foto con un filtro
+  encima, porque el modelo conserva la composición de la imagen base.
 
 ## Lo que no está en este repositorio
 
