@@ -131,7 +131,11 @@ def _encuadrar(img: Image.Image, ancho: int, alto: int) -> Image.Image:
         caras = camara.detectar_caras(
             cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
         )
-    except Exception:
+    except Exception as exc:
+        # Sin este aviso el fallo pasa desapercibido: se recorta por el centro
+        # y el resultado sale mal encuadrado sin que nada lo explique.
+        print(f"[gpu] AVISO: fallo la deteccion de caras -> "
+              f"{type(exc).__name__}: {exc}")
         caras = []
 
     if caras:

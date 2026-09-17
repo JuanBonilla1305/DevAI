@@ -22,12 +22,34 @@ def _clasificador() -> cv2.CascadeClassifier:
 
 
 def detectar_caras(imagen: np.ndarray) -> list[tuple[int, int, int, int]]:
+    """Busca caras frontales. Devuelve una lista de (x, y, ancho, alto).
+
+    El tamanio minimo se calcula a partir de la imagen: un minimo fijo en
+    pixeles descarta caras validas en fotos pequenias y acepta ruido en las
+    grandes. Si con los ajustes estrictos no sale nada, se reintenta con otros
+    mas permisivos antes de darse por vencido.
+    """
     gris = cv2.cvtColor(imagen, cv2.COLOR_BGR2GRAY)
     gris = cv2.equalizeHist(gris)
-    caras = _clasificador().detectMultiScale(
-        gris, scaleFactor=1.15, minNeighbors=6, minSize=(90, 90)
+
+    lado_menor = min(imagen.shape[:2])
+    minimo = max(24, lado_menor // 8)
+
+    intentos = (
+        (1.15, 6, minimo),
+        (1.10, 5, max(20, minimo // 2)),
+        (1.05, 3, max(16, minimo // 4)),
     )
-    return [tuple(int(v) for v in c) for c in caras]
+
+    for escala, vecinos, tamanio in intentos:
+        caras = _clasificador().detectMultiScale(
+            gris, scaleFactor=escala, minNeighbors=vecinos,
+            minSize=(tamanio, tamanio)
+        )
+        if len(caras):
+            return [tuple(int(v) for v in c) for c in caras]
+
+    return []
 
 
 def analizar(imagen: np.ndarray) -> dict:
