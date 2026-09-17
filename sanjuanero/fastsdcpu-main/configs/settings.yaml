@@ -11,7 +11,7 @@ lcm_diffusion_setting:
   gguf_model:
     clip_path: null
     diffusion_path: null
-    gguf_models: C:\Users\Juan\Desktop\mio\sanjuanero\fastsdcpu\models\gguf
+    gguf_models: C:\Users\Juan\Desktop\mio\sanjuanero\fastsdcpu-main\models\gguf
     t5xxl_path: null
     vae_path: null
   guidance_scale: 1.0
@@ -26,32 +26,35 @@ lcm_diffusion_setting:
   lora:
     enabled: false
     fuse: false
-    models_dir: C:\Users\Juan\Desktop\mio\sanjuanero\fastsdcpu\lora_models
+    models_dir: C:\Users\Juan\Desktop\mio\sanjuanero\fastsdcpu-main\lora_models
     path: null
     weight: 0.5
   negative_prompt: ''
   number_of_images: 1
   openvino_lcm_model_id: rupeshs/flux2-klein-4b-int4-ov
-  prompt: "\nRestyle this photograph into a 1985 studio portrait of one person.\n\
-    The first input image controls only the pose, framing and camera angle.\nThe second\
-    \ input image controls the person's identity, face shape and skin tone: keep them\
-    \ exactly. Restyle only the hair into a period-accurate 1980s look, keeping its\
-    \ original color and its natural texture: if the hair is straight, wavy or curly,\
-    \ keep that texture, only make it fuller and feathered with more volume at the\
-    \ crown and sides. If the person is bald or has very short hair, keep it that\
-    \ way and do not add hair. \n\nThe person wears 1980s menswear: a wide-collared\
-    \ shirt in a soft solid color under a boxy corduroy or tweed blazer with padded\
-    \ shoulders, optionally with a knitted argyle sweater vest.\nVertical waist-up\
-    \ portrait, the person centered and facing the camera with open eyes and a natural\
-    \ relaxed smile; do not use a profile view. Keep the head and shoulders large\
-    \ in the frame. Remove every other person from the scene.\nThe background is a\
-    \ classic 1980s portrait studio backdrop: a mottled blue-grey gradient with soft\
-    \ pink and cyan laser beams.\nKeep one single anatomically correct person with\
-    \ natural shoulders and neck.\nIf any hand is visible it must look natural, with\
-    \ five separate fingers.\nShot on 35mm film with direct studio flash and a soft\
-    \ focus glow, warm Kodak Gold color cast, fine film grain and a subtle vignette.\
-    \ Authentic 1985 mall portrait studio look, photorealistic, no text, no logo and\
-    \ no watermark.\n"
+  prompt: 'Turn this photograph into a 1980s Colombian family photograph.
+
+    The first input image controls the framing and the posture.
+
+    The second input image controls the person''s identity: keep that exact face,
+    bone structure and skin tone, without changing them. Restyle only the hair into
+    a 1980s look, keeping its original color and texture, just fuller and with more
+    volume. If the person is bald or has very short hair, keep it that way. Keep the
+    eyeglasses the person is wearing, restyled as 1980s frames.
+
+    Dress him in everyday 1980s Colombian menswear: a short-sleeved checked shirt
+    buttoned to the top, or a white guayabera, or a dark blazer over a wide-collared
+    shirt.
+
+    Keep it a waist-up photograph with the person centered and facing the camera,
+    the face clearly visible and well lit.
+
+    Place the person outdoors in 1980s Colombia: beside a big leafy tree with green
+    grass, a whitewashed or red brick house behind, and a bougainvillea in bloom.
+
+    Make it look like an authentic 1985 amateur color snapshot: faded washed-out colors
+    with a warm magenta shift, soft focus, slight overexposure, visible film grain,
+    direct on-camera flash. Photorealistic, no text and no watermark.'
   rebuild_controlnet_pipeline: false
   rebuild_pipeline: false
   seed: -1

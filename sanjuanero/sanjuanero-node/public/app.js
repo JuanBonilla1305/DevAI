@@ -216,6 +216,50 @@ async function checkStatus() {
   }
 }
 
+/**
+ * Cronómetro de la espera.
+ *
+ * Una generación tarda unos cinco minutos y medio, y sin ninguna señal en
+ * pantalla parece que la aplicación se ha colgado. El servidor no informa del
+ * avance real, así que se estima sobre el tiempo medido: es una aproximación,
+ * y por eso la barra se detiene en el 95% en vez de fingir que ha terminado.
+ */
+const SEGUNDOS_ESTIMADOS = 330;
+
+function arrancarReloj() {
+    const inicio = Date.now();
+    const cargandoReloj = document.getElementById('cargandoReloj');
+    const cargandoPaso = document.getElementById('cargandoPaso');
+    const cargandoDetalle = document.getElementById('cargandoDetalle');
+    const barraProgreso = document.getElementById('barraProgreso');
+
+    const pasos = [
+        [0, 'Cargando el modelo...', 'La primera vez tarda más porque tiene que leer los 4,3 GB del modelo.'],
+        [25, 'Generando la escena...', 'Construyendo el ambiente, la ropa y el peinado de los años 80.'],
+        [300, 'Colocando tu cara...', 'Aplicando tu rostro real sobre la escena generada.'],
+    ];
+
+    function pintar() {
+        const transcurrido = (Date.now() - inicio) / 1000;
+        const minutos = Math.floor(transcurrido / 60);
+        const segundos = Math.floor(transcurrido % 60);
+        cargandoReloj.textContent = `${minutos}:${String(segundos).padStart(2, '0')}`;
+
+        const porcentaje = Math.min(95, (transcurrido / SEGUNDOS_ESTIMADOS) * 100);
+        barraProgreso.style.width = porcentaje + '%';
+
+        const paso = pasos.filter(p => transcurrido >= p[0]).pop();
+        if (paso) {
+            cargandoPaso.textContent = paso[1];
+            cargandoDetalle.textContent = paso[2];
+        }
+    }
+
+    pintar();
+    const intervalo = setInterval(pintar, 1000);
+    return () => clearInterval(intervalo);
+}
+
 async function generateImage() {
   const f = fotoActual;
   if (!f) return alert('Elige una fotografía o tómala con la cámara primero.');
@@ -231,6 +275,7 @@ async function generateImage() {
   generate.disabled = true;
   loading.classList.remove('hidden');
   result.classList.add('hidden');
+  const detenerReloj = arrancarReloj();
 
   try {
     const r = await fetch('/api/generate', { method:'POST', body:form });
@@ -243,6 +288,7 @@ async function generateImage() {
   } catch (e) {
     alert(e.message);
   } finally {
+    detenerReloj();
     generate.disabled = false;
     loading.classList.add('hidden');
   }

@@ -51,3 +51,30 @@ button.secundario:hover { background: #e7e7ec; }
 }
 
 .hidden { display: none; }
+
+/* --- Espera de la generación --- */
+.cargando-texto { flex: 1; }
+
+.barra {
+  height: 6px;
+  background: #e8e8ee;
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 10px 0 6px;
+}
+
+#barraProgreso {
+  height: 100%;
+  width: 0;
+  background: #6c5ce7;
+  border-radius: 3px;
+  transition: width 1s linear;
+}
+
+.tiempo {
+  font-size: 0.8rem;
+  color: #888;
+  margin: 0;
+}
+
+#cargandoReloj { font-variant-numeric: tabular-nums; }

@@ -81,7 +81,12 @@
 
     <section id="loading" class="card hidden">
       <div class="spinner"></div>
-      <div><b>Generando...</b><p>El modelo arma el baile y después se coloca tu cara. En este equipo tarda unos 10 minutos.</p></div>
+      <div class="cargando-texto">
+        <b id="cargandoPaso">Generando la escena...</b>
+        <p id="cargandoDetalle">El modelo construye la escena de los 80 y después coloca tu cara real.</p>
+        <div class="barra"><div id="barraProgreso"></div></div>
+        <p class="tiempo"><span id="cargandoReloj">0:00</span> de unos 5:30</p>
+      </div>
     </section>
 
     <section id="result" class="card hidden">
