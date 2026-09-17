@@ -112,6 +112,63 @@ def _a_imagen(dato: str) -> Image.Image:
     return Image.open(io.BytesIO(base64.b64decode(dato))).convert("RGB")
 
 
+def _encuadrar(img: Image.Image, ancho: int, alto: int) -> Image.Image:
+    """Recorta a la proporcion pedida centrando en la cara, y luego escala.
+
+    Estirar la foto hasta el tamanio de salida la deforma: una foto apaisada
+    aplastada a formato retrato saca la cara descentrada y cortada. Aqui se
+    busca la cara, se recorta un busto a su alrededor respetando la
+    proporcion, y solo entonces se escala.
+    """
+    import cv2
+    import numpy as np
+
+    proporcion = ancho / alto
+    W, H = img.size
+
+    try:
+        import camara
+        caras = camara.detectar_caras(
+            cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+        )
+    except Exception:
+        caras = []
+
+    if caras:
+        x, y, w, h = max(caras, key=lambda c: c[2] * c[3])
+        cx = x + w / 2
+        # El centro vertical se baja un poco: en un retrato de busto la cara
+        # va en el tercio superior, no en el medio.
+        cy = y + h * 1.15
+
+        # Un busto ocupa alrededor de tres veces el ancho de la cara.
+        caja_alto = min(H, h * 4.0)
+        caja_ancho = caja_alto * proporcion
+        if caja_ancho > W:
+            caja_ancho = W
+            caja_alto = caja_ancho / proporcion
+    else:
+        # Sin cara detectada, recorte central a la proporcion pedida.
+        cx, cy = W / 2, H / 2
+        if W / H > proporcion:
+            caja_alto, caja_ancho = H, H * proporcion
+        else:
+            caja_ancho, caja_alto = W, W / proporcion
+
+    izquierda = int(round(min(max(0, cx - caja_ancho / 2), W - caja_ancho)))
+    arriba = int(round(min(max(0, cy - caja_alto / 2), H - caja_alto)))
+    recorte = img.crop((
+        izquierda,
+        arriba,
+        izquierda + int(round(caja_ancho)),
+        arriba + int(round(caja_alto)),
+    ))
+
+    print(f"[gpu] encuadre: {W}x{H} -> recorte {recorte.size[0]}x{recorte.size[1]}"
+          f" ({'cara detectada' if caras else 'centro'}) -> {ancho}x{alto}")
+    return recorte.resize((ancho, alto), Image.LANCZOS)
+
+
 def _generar(cuerpo: dict) -> dict:
     pipe = _cargar()
 
@@ -130,7 +187,7 @@ def _generar(cuerpo: dict) -> dict:
     alto = int(cuerpo.get("image_height") or 512)
     ancho = max(256, ancho // 8 * 8)
     alto = max(256, alto // 8 * 8)
-    base = base.resize((ancho, alto), Image.LANCZOS)
+    base = _encuadrar(base, ancho, alto)
 
     pasos = max(4, min(30, int(cuerpo.get("inference_steps") or 12)))
 
