@@ -1197,7 +1197,15 @@ app.post(
                     ? detectedPeople.slice(0, Number(peopleCount) || 1)
                     : [{ gender: costume, ageGroup: "adulto" }];
 
-                escena = escena80s(personas, Number(req.body.escena) || undefined);
+                // El genero lo decide lo que eligio el usuario, no lo que
+                // estima InsightFace: esa estimacion se equivoca a menudo y
+                // no debe pisar una decision explicita. De la deteccion
+                // salen la edad y las gafas, que no se preguntan.
+                escena = escena80s(
+                    personas,
+                    Number(req.body.escena) || undefined,
+                    costume
+                );
                 console.log("Escena:", JSON.stringify(escena.receta));
             }
 

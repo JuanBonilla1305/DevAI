@@ -147,19 +147,46 @@ function _aleatorio(semilla) {
     };
 }
 
-/** Normaliza lo que devuelve el análisis facial a {tipo} interno. */
-function _tipo(persona) {
+/**
+ * Normaliza una persona a un tipo interno.
+ *
+ * El género que manda es el que eligió el usuario (`generoElegido`), no el
+ * que estima InsightFace: esa estimación falla con frecuencia y no tiene
+ * sentido que una suposición pise una decisión explícita. La detección sí
+ * decide la edad, porque eso no se le pregunta.
+ */
+function _tipo(persona, generoElegido) {
+    if (persona && persona.ageGroup && persona.ageGroup !== "adulto") {
+        return "nino";
+    }
+    if (generoElegido === "mujer" || generoElegido === "hombre") {
+        return generoElegido;
+    }
     if (!persona) return "hombre";
-    if (persona.ageGroup && persona.ageGroup !== "adulto") return "nino";
     return persona.gender === "mujer" ? "mujer" : "hombre";
 }
 
-function _describir(tipo, azar) {
+/**
+ * Las gafas hay que pedirlas explícitamente: el intercambio de rostro cambia
+ * la cara, no lo que lleva puesto, así que si la escena no las genera la
+ * persona aparece sin ellas aunque las llevara en su foto.
+ */
+function _gafas(persona) {
+    if (!persona || !persona.hasGlasses) return "";
+    return persona.glassesType === "sunglasses"
+        ? " wearing large 1980s sunglasses"
+        : " wearing large 1980s eyeglasses with thin metal frames";
+}
+
+function _describir(tipo, persona, azar) {
+    const gafas = _gafas(persona);
+
     if (tipo === "nino") {
         return {
             sujeto: "a child",
             pelo: _elegir(PELO_NINO, azar),
             ropa: _elegir(ROPA_NINO, azar),
+            gafas,
             negativo: NEGATIVO_NINO,
         };
     }
@@ -168,6 +195,7 @@ function _describir(tipo, azar) {
             sujeto: "a woman",
             pelo: _elegir(PELO_MUJER, azar),
             ropa: _elegir(ROPA_MUJER, azar),
+            gafas,
             negativo: NEGATIVO_MUJER,
         };
     }
@@ -175,6 +203,7 @@ function _describir(tipo, azar) {
         sujeto: "a man",
         pelo: _elegir(PELO_HOMBRE, azar),
         ropa: _elegir(ROPA_HOMBRE, azar),
+        gafas,
         negativo: NEGATIVO_HOMBRE,
     };
 }
@@ -186,9 +215,8 @@ function _describir(tipo, azar) {
  *                          Una o dos. Si viene vacío se asume un hombre.
  * @param {number} [semilla] para repetir una escena concreta.
  */
-function escena80s(personas, semilla) {
+function escena80s(personas, semilla, generoElegido) {
     const lista = (Array.isArray(personas) ? personas : [personas])
-        .filter(Boolean)
         .slice(0, 2);
     if (!lista.length) lista.push(null);
 
@@ -197,14 +225,20 @@ function escena80s(personas, semilla) {
         : Math.floor(Math.random() * 2147483647);
     const azar = _aleatorio(usada);
 
-    const tipos = lista.map(_tipo);
-    const descripciones = tipos.map(tipo => _describir(tipo, azar));
+    // La elección del usuario solo se aplica cuando hay una persona: con dos
+    // no sabríamos a cuál de las dos corresponde, así que ahí sí decide la
+    // detección.
+    const unaSola = lista.length === 1;
+    const tipos = lista.map(p => _tipo(p, unaSola ? generoElegido : null));
+    const descripciones = tipos.map(
+        (tipo, i) => _describir(tipo, lista[i], azar)
+    );
     const ambiente = _elegir(AMBIENTES, azar);
     const dos = descripciones.length === 2;
     const encuadre = _elegir(dos ? ENCUADRES_DOS : ENCUADRES_UNO, azar);
 
     const sujetos = descripciones
-        .map(d => `${d.sujeto} with ${d.pelo}, wearing ${d.ropa}`)
+        .map(d => `${d.sujeto} with ${d.pelo},${d.gafas ? d.gafas + "," : ""} wearing ${d.ropa}`)
         .join(" and ");
 
     const cabecera = dos
@@ -223,12 +257,19 @@ function escena80s(personas, semilla) {
         ? ", three people, crowd, group of people, extra person"
         : ", two people, couple, group, crowd, another person in the background";
 
+    // Si nadie lleva gafas hay que negarlas. Decir "sin gafas" en el prompt
+    // positivo no funciona: nombrarlas basta para que el modelo las dibuje.
+    const negativoGafas = descripciones.some(d => d.gafas)
+        ? ""
+        : ", eyeglasses, sunglasses, glasses";
+
     return {
         prompt: [cabecera, encuadre, ambiente, PELICULA].join(", "),
-        negativo: NEGATIVO_BASE + negativoGenero + negativoCantidad,
+        negativo: NEGATIVO_BASE + negativoGenero + negativoCantidad + negativoGafas,
         receta: {
             semilla: usada,
             personas: tipos,
+            gafas: descripciones.some(d => d.gafas),
             encuadre: dos ? "dos_personas" : "una_persona",
         },
     };
