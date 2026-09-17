@@ -31,6 +31,7 @@ from PIL import Image
 import config
 
 _PIPE = None
+_PIPE_TXT = None
 
 # El pipeline y su scheduler tienen estado interno. Si dos peticiones entran a
 # la vez se pisan y salen errores de indices fuera de rango, asi que se genera
@@ -51,11 +52,14 @@ def _cargar():
     foto con ruido controlado: la composicion queda sujeta por construccion
     y la fuerza del cambio se regula con un unico valor.
     """
-    global _PIPE
+    global _PIPE, _PIPE_TXT
     if _PIPE is not None:
         return _PIPE
 
-    from diffusers import StableDiffusionImg2ImgPipeline
+    from diffusers import (
+        StableDiffusionImg2ImgPipeline,
+        StableDiffusionPipeline,
+    )
     from hardware import ahorrar_memoria
 
     print(f"[gpu] cargando {config.MODELO_IMG2IMG}")
@@ -65,6 +69,11 @@ def _cargar():
         safety_checker=None,
         requires_safety_checker=False,
     )
+
+    # El pipeline de texto a imagen reutiliza exactamente los mismos pesos:
+    # comparte UNet, VAE y codificador, asi que no ocupa VRAM adicional.
+    _PIPE_TXT = StableDiffusionPipeline(**pipe.components)
+    _PIPE_TXT.set_progress_bar_config(disable=True)
 
     if torch.cuda.is_available():
         pipe = pipe.to("cuda")
@@ -186,22 +195,28 @@ def _encuadrar(img: Image.Image, ancho: int, alto: int) -> Image.Image:
 def _generar(cuerpo: dict) -> dict:
     pipe = _cargar()
 
+    # Con desde_cero la escena se inventa entera a partir del texto. Hace
+    # falta para planos de cuerpo entero: img2img conserva la composicion de
+    # la foto de partida, asi que de un plano de webbam de busto no puede
+    # salir una persona de pie. La identidad la pone despues el intercambio
+    # de rostro, no la generacion.
+    desde_cero = bool(cuerpo.get("txt2img"))
+
     entrada = cuerpo.get("init_image")
     if isinstance(entrada, str):
         entrada = [entrada]
-    if not entrada:
+    if not entrada and not desde_cero:
         return {"error": "No llego ninguna imagen de referencia."}
-
-    # server.js manda [pose, cabeza(s), vestuario]. Usamos la primera como
-    # base: la identidad no depende de esto, porque el propio frontend pega
-    # la cara real con InSwapper despues de generar.
-    base = _a_imagen(entrada[0])
 
     ancho = int(cuerpo.get("image_width") or 384)
     alto = int(cuerpo.get("image_height") or 512)
     ancho = max(256, ancho // 8 * 8)
     alto = max(256, alto // 8 * 8)
-    base = _encuadrar(base, ancho, alto)
+
+    base = None
+    if not desde_cero:
+        # server.js manda [foto, cabeza(s), vestuario]. Usamos la primera.
+        base = _encuadrar(_a_imagen(entrada[0]), ancho, alto)
 
     pasos = max(4, min(30, int(cuerpo.get("inference_steps") or 20)))
 
@@ -239,22 +254,29 @@ def _generar(cuerpo: dict) -> dict:
     # y, si una generacion falla a medias, la siguiente hereda ese estado y
     # se sale del array de timesteps.
     pipe.scheduler = pipe.scheduler.from_config(pipe.scheduler.config)
-    salida = pipe(
-        prompt_embeds=embeddings,
-        negative_prompt_embeds=embeddings_neg,
-        image=base,
-        num_inference_steps=pasos,
-        guidance_scale=guia,
-        strength=fuerza,
-        generator=generador,
-    )
+
+    comun = {
+        "prompt_embeds": embeddings,
+        "negative_prompt_embeds": embeddings_neg,
+        "num_inference_steps": pasos,
+        "guidance_scale": guia,
+        "generator": generador,
+    }
+
+    if desde_cero:
+        _PIPE_TXT.scheduler = pipe.scheduler
+        salida = _PIPE_TXT(height=alto, width=ancho, **comun)
+    else:
+        salida = pipe(image=base, strength=fuerza, **comun)
+
     transcurrido = time.time() - inicio
 
     buffer = io.BytesIO()
     salida.images[0].save(buffer, format="PNG")
     codificada = base64.b64encode(buffer.getvalue()).decode("ascii")
 
-    print(f"[gpu] {ancho}x{alto}, {pasos} pasos, guia {guia}, fuerza {fuerza}, "
+    metodo = "txt2img" if desde_cero else f"img2img fuerza {fuerza}"
+    print(f"[gpu] {ancho}x{alto}, {pasos} pasos, guia {guia}, {metodo}, "
           f"semilla {semilla} -> {transcurrido:.1f} s")
 
     return {"images": [codificada], "seconds": round(transcurrido, 1)}

@@ -6,9 +6,9 @@ const { spawn } = require("child_process");
 const http = require("http");
 const {
     buildPrompt80s,
-    buildTwoPersonPrompt80s,
-    NEGATIVO_80S
+    buildTwoPersonPrompt80s
 } = require("./prompts80s");
+const { escena80s, NEGATIVO_80S } = require("./escenas80s");
 
 const GENERATE_TIMEOUT_MS = 60 * 60 * 1000;
 
@@ -272,9 +272,20 @@ function runPreserveFace(
     ));
 }
 
-function buildFastSDBody(prompt, initImage, isTwoPerson = false) {
+function buildFastSDBody(
+    prompt,
+    initImage,
+    isTwoPerson = false,
+    desdeCero = false,
+    negativo = null
+) {
 
     return {
+
+        // La escena se inventa entera desde el texto. Es la unica forma de
+        // cambiar la pose y el cuerpo: partiendo de la foto, la composicion
+        // se conserva y de un plano de busto no sale una persona de pie.
+        txt2img: desdeCero,
 
         lcm_model_id:
             "stabilityai/sd-turbo",
@@ -299,7 +310,8 @@ function buildFastSDBody(prompt, initImage, isTwoPerson = false) {
 
         prompt: prompt,
 
-        negative_prompt: TEMA === "sanjuanero" ? "" : NEGATIVO_80S,
+        negative_prompt:
+            negativo || (TEMA === "sanjuanero" ? "" : NEGATIVO_80S),
 
         init_image: initImage,
 
@@ -315,11 +327,13 @@ function buildFastSDBody(prompt, initImage, isTwoPerson = false) {
         // de barrer parametros sobre fotos reales en una RTX 3050: a fuerza
         // 0.55 la persona sigue siendo reconocible, los objetos modernos
         // desaparecen y el retrato tarda menos de 4 segundos.
-        image_height: MOTOR_GPU ? 576 : 512,
+        // Vertical y algo mas alto cuando la escena se genera entera, para
+        // que quepa el cuerpo sin aplastar la figura.
+        image_height: MOTOR_GPU ? (desdeCero ? 704 : 576) : 512,
 
-        image_width: MOTOR_GPU ? 448 : 384,
+        image_width: MOTOR_GPU ? (desdeCero ? 512 : 448) : 384,
 
-        inference_steps: MOTOR_GPU ? 20 : (isTwoPerson ? 8 : 6),
+        inference_steps: MOTOR_GPU ? (desdeCero ? 28 : 20) : (isTwoPerson ? 8 : 6),
 
         guidance_scale: MOTOR_GPU ? 8.0 : 1.0,
 
@@ -1172,8 +1186,18 @@ app.post(
                 });
             }
 
-            const prompt =
-                peopleCount === "2"
+            // Con el tema de los 80 y una sola persona, la escena se saca del
+            // banco: cada peticion combina encuadre, peinado, vestuario y
+            // ambiente distintos, asi que no salen siempre la misma foto.
+            let escena = null;
+            if (TEMA !== "sanjuanero" && peopleCount !== "2") {
+                escena = escena80s(costume, Number(req.body.escena) || undefined);
+                console.log("Escena:", JSON.stringify(escena.receta));
+            }
+
+            const prompt = escena
+                ? escena.prompt
+                : peopleCount === "2"
                     ? construirPromptDosPersonas(
                         pairType,
                         detectedPeople,
@@ -1207,7 +1231,9 @@ app.post(
                 buildFastSDBody(
                     prompt,
                     initImages,
-                    peopleCount === "2"
+                    peopleCount === "2",
+                    Boolean(escena),
+                    escena ? escena.negativo : null
                 );
 
             console.log("");
