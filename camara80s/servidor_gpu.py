@@ -128,7 +128,25 @@ def _a_imagen(dato: str) -> Image.Image:
     return Image.open(io.BytesIO(base64.b64decode(dato))).convert("RGB")
 
 
-def _encuadrar(img: Image.Image, ancho: int, alto: int) -> Image.Image:
+def _hay_cara(img: Image.Image) -> bool:
+    """True si se detecta al menos una cara. Se usa para descartar
+    generaciones fallidas antes de devolverlas."""
+    import cv2
+    import numpy as np
+
+    try:
+        import camara
+        return bool(camara.detectar_caras(
+            cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+        ))
+    except Exception as exc:
+        print(f"[gpu] AVISO: fallo la deteccion de caras -> "
+              f"{type(exc).__name__}: {exc}")
+        return True  # ante la duda, no descartamos la imagen
+
+
+def _encuadrar(img: Image.Image, ancho: int, alto: int,
+               alturas_cara: float = 5.0) -> Image.Image:
     """Recorta a la proporcion pedida centrando en la cara, y luego escala.
 
     Estirar la foto hasta el tamanio de salida la deforma: una foto apaisada
@@ -161,11 +179,7 @@ def _encuadrar(img: Image.Image, ancho: int, alto: int) -> Image.Image:
         # va en el tercio superior, no en el medio.
         cy = y + h * 1.15
 
-        # Encuadre algo mas abierto que un primer plano: InSwapper trabaja a
-        # 128x128, asi que cuanto mas grande sale la cara en la imagen final,
-        # mas se nota el desenfoque del intercambio. Dejando mas cuerpo la
-        # cara ocupa menos pixeles y el pegado pasa desapercibido.
-        caja_alto = min(H, h * 5.0)
+        caja_alto = min(H, h * alturas_cara)
         caja_ancho = caja_alto * proporcion
         if caja_ancho > W:
             caja_ancho = W
@@ -265,7 +279,31 @@ def _generar(cuerpo: dict) -> dict:
 
     if desde_cero:
         _PIPE_TXT.scheduler = pipe.scheduler
+        # Se genera con margen de sobra y despues se recorta al encuadre
+        # pedido. Pedir "waist-up shot" en el texto no es fiable: el modelo
+        # abre el plano cuando le conviene para encajar el fondo. Recortar es
+        # determinista, y de paso deja la cara mas grande, que es lo que
+        # necesita el intercambio de rostro.
         salida = _PIPE_TXT(height=alto, width=ancho, **comun)
+        resultado_bruto = salida.images[0]
+
+        # Si no se detecta ninguna cara, la generacion salio mal: SD 1.5 la
+        # emborrona de vez en cuando. Mas vale repetir con otra semilla que
+        # devolver una imagen inservible, porque ademas el intercambio de
+        # rostro se saltaria por no encontrar cara donde pegar.
+        if not _hay_cara(resultado_bruto):
+            print("[gpu] sin cara detectable, repito con otra semilla")
+            comun["generator"] = torch.Generator(device="cpu").manual_seed(
+                (int(semilla) + 1) % 2**31
+            )
+            _PIPE_TXT.scheduler = pipe.scheduler.from_config(
+                pipe.scheduler.config
+            )
+            salida = _PIPE_TXT(height=alto, width=ancho, **comun)
+            resultado_bruto = salida.images[0]
+
+        recortada = _encuadrar(resultado_bruto, ancho, alto, alturas_cara=3.6)
+        salida.images[0] = recortada
     else:
         salida = pipe(image=base, strength=fuerza, **comun)
 

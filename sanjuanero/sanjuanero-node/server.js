@@ -1187,12 +1187,17 @@ app.post(
                 });
             }
 
-            // Con el tema de los 80 y una sola persona, la escena se saca del
-            // banco: cada peticion combina encuadre, peinado, vestuario y
-            // ambiente distintos, asi que no salen siempre la misma foto.
+            // La escena se saca del banco, con una o dos personas segun lo
+            // que haya detectado el analisis facial. Se le pasan las personas
+            // detectadas tal cual: de ahi salen el genero y si alguna es un
+            // ninio, sin preguntarselo al usuario.
             let escena = null;
-            if (TEMA !== "sanjuanero" && peopleCount !== "2") {
-                escena = escena80s(costume, Number(req.body.escena) || undefined);
+            if (TEMA !== "sanjuanero") {
+                const personas = detectedPeople && detectedPeople.length
+                    ? detectedPeople.slice(0, Number(peopleCount) || 1)
+                    : [{ gender: costume, ageGroup: "adulto" }];
+
+                escena = escena80s(personas, Number(req.body.escena) || undefined);
                 console.log("Escena:", JSON.stringify(escena.receta));
             }
 

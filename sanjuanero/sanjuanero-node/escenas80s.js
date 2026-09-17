@@ -1,151 +1,133 @@
 /**
- * Banco de escenas ochenteras.
+ * Banco de escenas: Colombia en los años 80.
  *
- * La idea no es una foto siempre igual, sino muchas variantes del mismo
- * estilo. Cada generación combina al azar cuatro piezas independientes
- * -encuadre, peinado, vestuario y ambiente- así que el número de escenas
- * posibles es el producto de las cuatro listas, no la suma.
+ * La referencia no es el imaginario de Miami con neón, sino la foto familiar
+ * colombiana de la época: revelado de laboratorio de barrio con el color algo
+ * virado, exteriores de patio o jardín, un árbol grande, la casa detrás, y
+ * ropa de diario. Esa textura es la que hace que se reconozca como auténtica.
  *
- * La escena se genera entera desde el texto, sin partir de la foto: solo así
- * puede cambiar la pose y el cuerpo. La cara real se pega después con
- * InSwapper, que es lo que hace que siga siendo la misma persona.
+ * Una generación puede llevar una o dos personas, y distingue si alguna es un
+ * niño. Esos datos vienen del análisis facial que ya hace el proyecto
+ * (género, grupo de edad), no se le preguntan al usuario.
  *
- * Referencia visual: la estética de estudio ochentera con fondo cálido,
- * sombras de persiana, radiocasete, palmeras y colores magenta y turquesa.
+ * La escena se genera entera desde el texto; la cara real se pega después con
+ * InSwapper. Por eso conviene que la cara salga grande y bien iluminada.
  */
 
 // ---------------------------------------------------------------------
-// Piezas comunes
+// Textura fotográfica
 // ---------------------------------------------------------------------
 
-const CALIDAD =
-    "authentic 1985 color photograph, shot on 35mm film, warm analog color " +
-    "grading, fine film grain, studio lighting, sharp focus on the face, " +
+// Nada de "family photo album" aquí: esa expresión arrastra la idea de grupo
+// y de plano abierto, y el modelo acababa metiendo una segunda persona aunque
+// el prompt pidiera una sola.
+const PELICULA =
+    "authentic 1985 amateur color snapshot, shot on expired Kodak film, " +
+    "faded washed-out colors with a warm magenta shift, soft focus, " +
+    "slight overexposure, visible film grain, direct on-camera flash, " +
     "photorealistic";
 
-// Lo que hay que evitar. SD 1.5 falla sobre todo en manos y en caras
-// pequeñas, así que se nombran explícitamente.
-const NEGATIVO =
+const NEGATIVO_BASE =
     "extra fingers, missing fingers, deformed hands, mutated hands, " +
-    "deformed face, distorted face, extra faces, two heads, extra limbs, " +
+    "deformed face, distorted face, extra faces, extra limbs, " +
     "modern clothing, hoodie, smartphone, headphones, headset, " +
+    "neon, synthwave, cyberpunk, studio backdrop, " +
     "blurry, lowres, jpeg artifacts, text, watermark, signature, " +
     "cartoon, 3d render, illustration, painting, " +
-    // Todo lo que empuje el plano hacia atras: las escenas son de cintura
-    // para arriba y el modelo tiende a alejarse si ve piernas o calzado.
-    "full body, legs, knees, feet, shoes, trousers, wide shot, distant figure, " +
+    "full body, legs, knees, feet, shoes, wide shot, distant figure, " +
     "small face, face in shadow, back turned, profile view";
 
-// SD 1.5 se va de género con facilidad: con un chaleco de rombos o una
-// melena con volumen dibuja una mujer aunque el prompt diga "a man". Hay que
-// insistir en el sujeto y negar el género contrario de forma explícita.
-const NEGATIVO_HOMBRE = ", woman, female, feminine face, long eyelashes, lipstick, makeup, dress, skirt, breasts";
-const NEGATIVO_MUJER = ", man, male, masculine face, beard, moustache, stubble, flat chest";
+const NEGATIVO_HOMBRE = ", woman, female, feminine face, lipstick, makeup, dress, breasts";
+const NEGATIVO_MUJER = ", man, male, masculine face, beard, moustache, stubble";
+const NEGATIVO_NINO = ", adult, old face, wrinkles, beard, moustache, cleavage";
+
+// ---------------------------------------------------------------------
+// Ambientes colombianos
+// ---------------------------------------------------------------------
+
+const AMBIENTES = [
+    "outdoors leaning against the trunk of a big leafy tree, green grass and a white house visible behind, soft overcast daylight",
+    "in the patio of a Colombian house, whitewashed wall with potted plants and a tiled floor, bright midday sun",
+    "in front of a red brick house with a wrought iron window grille and a bougainvillea in bloom",
+    "in a garden with banana plants and tropical greenery, distant green mountains behind",
+    "in a 1980s living room with dark wood furniture, a crocheted doily on the sideboard and floral wallpaper",
+    "in a neighbourhood park with concrete benches and tall trees, other houses blurred in the distance",
+    "standing beside an old boxy 1980s car parked on a residential street",
+    "on a covered terrace with a wooden railing, green hills and a cloudy sky behind",
+];
 
 // ---------------------------------------------------------------------
 // Encuadres
 // ---------------------------------------------------------------------
 //
-// El plano entero es el de la referencia, pero conviene mezclarlo: cuanto
-// más lejos está la persona, más pequeña sale la cara y peor la dibuja el
-// modelo. Los planos medios dan caras mejores y el intercambio encaja mejor.
+// Todos de cintura para arriba. La cara grande importa: InSwapper trabaja a
+// 128x128 y en un plano abierto la identidad casi no se transfiere.
 
-// Todos los encuadres son de cintura para arriba. La variedad está en la
-// pose y en los brazos, no en la distancia.
-//
-// Además de ser lo que se pidió, ayuda al parecido: InSwapper trabaja a
-// 128x128, así que cuantos más píxeles ocupe la cara en la imagen generada,
-// mejor se transfiere la identidad. En un plano entero la cara acababa
-// ocupando cuarenta o cincuenta píxeles y el parecido se perdía.
-//
-// Se repite en todos "face clearly visible and well lit": sin eso el modelo
-// tiende a poner la cara en sombra o de perfil, y entonces el intercambio
-// no encuentra rostro y se salta.
 const CARA = "looking straight at the camera, face clearly visible and well lit";
 
-const ENCUADRES = [
-    { nombre: "brazos_cruzados", texto: `waist-up shot, arms crossed, confident relaxed posture, slight smile, ${CARA}` },
-    { nombre: "manos_bolsillos", texto: `waist-up shot, thumbs hooked in the pockets, shoulders squared, ${CARA}` },
-    { nombre: "cuello", texto: `waist-up shot, one hand adjusting the collar of the jacket, ${CARA}` },
-    { nombre: "apoyado", texto: `waist-up shot leaning back against the wall, arms loosely crossed, ${CARA}` },
-    { nombre: "gafas", texto: `waist-up shot, one hand lowering the sunglasses slightly, amused expression, ${CARA}` },
-    { nombre: "pecho", texto: `chest-up portrait, head tilted slightly, face large in the frame, ${CARA}` },
-    { nombre: "hombro", texto: `waist-up shot turned slightly to one side with the head facing forward, one hand on the hip, ${CARA}` },
-    { nombre: "mano_pelo", texto: `waist-up shot, one hand running through the hair, relaxed smile, ${CARA}` },
-    { nombre: "brazo_alzado", texto: `waist-up shot with one forearm resting on a raised surface, body turned slightly, ${CARA}` },
+const ENCUADRES_UNO = [
+    `waist-up shot, arms relaxed at the sides, slight smile, ${CARA}`,
+    `waist-up shot, arms crossed, calm expression, ${CARA}`,
+    `waist-up shot, one hand resting on the tree trunk, ${CARA}`,
+    `waist-up shot, hands clasped in front, posing for the photo, ${CARA}`,
+    `chest-up portrait, head tilted slightly, face large in the frame, ${CARA}`,
+    `waist-up shot turned slightly to one side with the head facing forward, ${CARA}`,
 ];
-// Se descartó un encuadre "sentado en un taburete": aunque el texto pidiera
-// cintura para arriba, la pose arrastra piernas y el modelo abría el plano
-// para encajarlas, incluso con "legs" y "knees" en el prompt negativo. Una
-// pose que implica el cuerpo entero pesa más que la instrucción de encuadre.
 
-// ---------------------------------------------------------------------
-// Ambientes
-// ---------------------------------------------------------------------
-
-const AMBIENTES = [
-    { nombre: "estudio_calido", texto: "in a 1980s photo studio set with a warm amber background, hard venetian blind shadows across the wall, a potted palm and a chrome boombox on a magenta pedestal" },
-    { nombre: "neon_calle", texto: "on a neon-lit city street at night, glowing pink and cyan neon signs, wet asphalt reflecting the lights, blurred city bokeh behind" },
-    { nombre: "atardecer_miami", texto: "against a painted Miami sunset backdrop with palm trees, pink and orange sky, turquoise and magenta geometric shapes" },
-    { nombre: "arcade", texto: "inside a 1980s video arcade, glowing arcade cabinets behind, dark room lit by screens in cyan and magenta" },
-    { nombre: "cuadricula", texto: "in front of a retro studio backdrop of a purple laser grid horizon and a huge setting sun, haze in the air, magenta and teal rim lighting" },
-    { nombre: "coche", texto: "leaning on the hood of a boxy 1980s sports car at dusk, warm orange sky, lens flare from the streetlights" },
+// Las poses de dos personas se describen con cuidado: hay que decir dónde va
+// cada cuerpo o el modelo los funde en uno solo o añade brazos de más.
+const ENCUADRES_DOS = [
+    `waist-up shot of both standing side by side, shoulders touching, both faces clearly visible side by side and well lit, looking straight at the camera`,
+    `waist-up shot of both posing close together, one slightly behind the other, both heads clearly separated, both faces well lit, looking straight at the camera`,
+    `waist-up shot of both standing together with an arm around the other's shoulder, both faces clearly visible and well lit, looking straight at the camera`,
+    `chest-up shot of both heads close together, both faces large in the frame and well lit, looking straight at the camera`,
 ];
 
 // ---------------------------------------------------------------------
-// Hombre
+// Personas
 // ---------------------------------------------------------------------
 
 const PELO_HOMBRE = [
-    "a voluminous 1980s mullet, short on top and long at the back, with a thick moustache",
-    "big feathered 1980s hair blow-dried with volume at the crown, and a moustache with a goatee",
-    "curly permed 1980s hair with lots of volume, clean shaven",
-    "slicked-back 1980s hair with wings at the sides, and a trimmed moustache",
+    "a 1980s mullet and a thick moustache",
+    "dark 1980s hair blow-dried with volume and a neat moustache",
+    "curly 1980s hair with volume, clean shaven",
+    "straight dark 1980s hair parted at the side, thin moustache",
 ];
 
-// Solo prendas que se ven de cintura para arriba: nombrar pantalones o
-// zapatos empuja al modelo a abrir el plano para encajarlos.
 const ROPA_HOMBRE = [
-    "an acid-wash denim jacket with magenta and teal colour-blocked panels, open over a teal graphic t-shirt printed with a sunset and palm trees, a gold chain",
-    "a pastel blazer with heavy padded shoulders and rolled-up sleeves over a white t-shirt, a thin leather tie",
-    "a red leather bomber jacket with zips over a black t-shirt, a gold chain",
-    "a turquoise and purple windbreaker track jacket with bold geometric stripes over a white t-shirt",
-    "a knitted argyle sweater vest over a wide-collared striped shirt",
-    "a pale blue denim jacket with the collar up over a white polo shirt, aviator sunglasses hanging from the neckline",
+    "a black leather jacket over a red shirt with a wide collar",
+    "a short-sleeved checked shirt buttoned to the top",
+    "a white guayabera shirt",
+    "a beige zip-up jacket over a striped polo shirt",
+    "a dark blazer over a light shirt with a wide collar",
 ];
-
-const GAFAS_HOMBRE = [
-    "wearing tinted aviator sunglasses",
-    "wearing large square 1980s sunglasses",
-    "",
-    "",
-];
-
-// ---------------------------------------------------------------------
-// Mujer
-// ---------------------------------------------------------------------
 
 const PELO_MUJER = [
-    "huge permed 1980s hair teased high with lots of volume and hairspray",
-    "big feathered 1980s hair with voluminous layers framing the face",
-    "crimped 1980s hair with a colourful scrunchie and a side ponytail",
-    "voluminous 1980s curls with a wide patterned headband",
+    "big permed curly 1980s hair with lots of volume",
+    "voluminous 1980s hair with feathered layers framing the face",
+    "dark 1980s hair with a side parting and soft curls, small gold earrings",
+    "crimped 1980s hair held back with a patterned headband",
 ];
 
 const ROPA_MUJER = [
-    "an oversized acid-wash denim jacket with magenta and teal panels over a bright turquoise top, huge gold hoop earrings",
-    "a bright pink blazer with enormous padded shoulders over a white blouse, gold statement earrings",
-    "a turquoise off-the-shoulder sweatshirt, chunky plastic bangles, big hoop earrings",
-    "a purple satin blouse with a wide collar and heavy shoulder pads, a gold chain necklace",
-    "a magenta and teal geometric-print top with padded shoulders, chunky colourful jewellery",
-    "a white blouse with a huge ruffled collar under a teal cropped jacket, pearl earrings",
+    "a white blouse with shoulder pads and a wide collar",
+    "a cream cardigan over a floral blouse",
+    "a pastel blouse with a ruffled collar and a thin gold chain",
+    "a dark blazer with shoulder pads over a white shirt",
+    "a knitted sweater with a geometric 1980s pattern",
 ];
 
-const GAFAS_MUJER = [
-    "wearing oversized 1980s sunglasses",
-    "",
-    "",
-    "",
+const PELO_NINO = [
+    "a neat 1980s bowl haircut",
+    "short dark hair combed to the side",
+    "short curly hair",
+];
+
+const ROPA_NINO = [
+    "a school uniform shirt with a small tie",
+    "a striped t-shirt",
+    "a knitted sweater over a collared shirt",
+    "a small buttoned shirt with a wide collar",
 ];
 
 // ---------------------------------------------------------------------
@@ -154,10 +136,7 @@ function _elegir(lista, aleatorio) {
     return lista[Math.floor(aleatorio() * lista.length)];
 }
 
-/**
- * Generador reproducible. Con la misma semilla sale la misma escena, lo que
- * permite repetir un resultado que gustó.
- */
+/** Generador reproducible: la misma semilla da la misma escena. */
 function _aleatorio(semilla) {
     let estado = semilla >>> 0 || 1;
     return function () {
@@ -168,62 +147,105 @@ function _aleatorio(semilla) {
     };
 }
 
+/** Normaliza lo que devuelve el análisis facial a {tipo} interno. */
+function _tipo(persona) {
+    if (!persona) return "hombre";
+    if (persona.ageGroup && persona.ageGroup !== "adulto") return "nino";
+    return persona.gender === "mujer" ? "mujer" : "hombre";
+}
+
+function _describir(tipo, azar) {
+    if (tipo === "nino") {
+        return {
+            sujeto: "a child",
+            pelo: _elegir(PELO_NINO, azar),
+            ropa: _elegir(ROPA_NINO, azar),
+            negativo: NEGATIVO_NINO,
+        };
+    }
+    if (tipo === "mujer") {
+        return {
+            sujeto: "a woman",
+            pelo: _elegir(PELO_MUJER, azar),
+            ropa: _elegir(ROPA_MUJER, azar),
+            negativo: NEGATIVO_MUJER,
+        };
+    }
+    return {
+        sujeto: "a man",
+        pelo: _elegir(PELO_HOMBRE, azar),
+        ropa: _elegir(ROPA_HOMBRE, azar),
+        negativo: NEGATIVO_HOMBRE,
+    };
+}
+
 /**
- * Compone una escena al azar.
+ * Compone una escena.
  *
- * @param {"hombre"|"mujer"} genero
- * @param {number} [semilla] para repetir una escena concreta
- * @returns {{prompt: string, negativo: string, receta: object}}
+ * @param {Array} personas  del análisis facial: [{gender, ageGroup}, ...].
+ *                          Una o dos. Si viene vacío se asume un hombre.
+ * @param {number} [semilla] para repetir una escena concreta.
  */
-function escena80s(genero, semilla) {
+function escena80s(personas, semilla) {
+    const lista = (Array.isArray(personas) ? personas : [personas])
+        .filter(Boolean)
+        .slice(0, 2);
+    if (!lista.length) lista.push(null);
+
     const usada = Number.isFinite(semilla)
         ? semilla
         : Math.floor(Math.random() * 2147483647);
     const azar = _aleatorio(usada);
 
-    const esHombre = genero !== "mujer";
-    // El género se repite al principio y al final del prompt: es donde más
-    // pesa, y sin esa insistencia el modelo lo cambia a mitad de escena.
-    const sujeto = esHombre
-        ? "a man, masculine, male model"
-        : "a woman, feminine, female model";
-
-    const encuadre = _elegir(ENCUADRES, azar);
+    const tipos = lista.map(_tipo);
+    const descripciones = tipos.map(tipo => _describir(tipo, azar));
     const ambiente = _elegir(AMBIENTES, azar);
-    const pelo = _elegir(esHombre ? PELO_HOMBRE : PELO_MUJER, azar);
-    const ropa = _elegir(esHombre ? ROPA_HOMBRE : ROPA_MUJER, azar);
-    const gafas = _elegir(esHombre ? GAFAS_HOMBRE : GAFAS_MUJER, azar);
+    const dos = descripciones.length === 2;
+    const encuadre = _elegir(dos ? ENCUADRES_DOS : ENCUADRES_UNO, azar);
 
-    const partes = [
-        `${CALIDAD.split(",")[0]} of ${sujeto} with ${pelo}`,
-        `wearing ${ropa}`,
-        gafas,
-        encuadre.texto,
-        ambiente.texto,
-        CALIDAD,
-        esHombre ? "a masculine man" : "a feminine woman",
-    ].filter(Boolean);
+    const sujetos = descripciones
+        .map(d => `${d.sujeto} with ${d.pelo}, wearing ${d.ropa}`)
+        .join(" and ");
+
+    const cabecera = dos
+        ? `authentic 1985 Colombian photograph of exactly two people together, ${sujetos}`
+        : `authentic 1985 Colombian photograph of one person alone, ${sujetos}, solo portrait`;
+
+    // El negativo de género solo se aplica cuando hay una sola persona: con
+    // dos de sexos distintos se contradiría y anularía el efecto.
+    const negativoGenero = dos && tipos[0] !== tipos[1]
+        ? ""
+        : descripciones[0].negativo;
+
+    // Y hay que negar explícitamente el número de personas que no queremos:
+    // describir la escena no basta, el modelo añade gente por su cuenta.
+    const negativoCantidad = dos
+        ? ", three people, crowd, group of people, extra person"
+        : ", two people, couple, group, crowd, another person in the background";
 
     return {
-        prompt: partes.join(", "),
-        negativo: NEGATIVO + (esHombre ? NEGATIVO_HOMBRE : NEGATIVO_MUJER),
+        prompt: [cabecera, encuadre, ambiente, PELICULA].join(", "),
+        negativo: NEGATIVO_BASE + negativoGenero + negativoCantidad,
         receta: {
             semilla: usada,
-            genero: esHombre ? "hombre" : "mujer",
-            encuadre: encuadre.nombre,
-            ambiente: ambiente.nombre,
+            personas: tipos,
+            encuadre: dos ? "dos_personas" : "una_persona",
         },
     };
 }
 
-/** Cuántas escenas distintas puede producir el banco. */
 function totalCombinaciones() {
-    const porGenero = (pelo, ropa, gafas) =>
-        ENCUADRES.length * AMBIENTES.length * pelo * ropa * gafas;
+    const uno = (pelo, ropa) =>
+        ENCUADRES_UNO.length * AMBIENTES.length * pelo * ropa;
     return {
-        hombre: porGenero(PELO_HOMBRE.length, ROPA_HOMBRE.length, new Set(GAFAS_HOMBRE).size),
-        mujer: porGenero(PELO_MUJER.length, ROPA_MUJER.length, new Set(GAFAS_MUJER).size),
+        hombre: uno(PELO_HOMBRE.length, ROPA_HOMBRE.length),
+        mujer: uno(PELO_MUJER.length, ROPA_MUJER.length),
+        nino: uno(PELO_NINO.length, ROPA_NINO.length),
+        pareja:
+            ENCUADRES_DOS.length * AMBIENTES.length *
+            PELO_HOMBRE.length * ROPA_HOMBRE.length *
+            PELO_MUJER.length * ROPA_MUJER.length,
     };
 }
 
-module.exports = { escena80s, totalCombinaciones, NEGATIVO_80S: NEGATIVO };
+module.exports = { escena80s, totalCombinaciones, NEGATIVO_80S: NEGATIVO_BASE };
