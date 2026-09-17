@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Sanjuanero IA</title>
+  <title>Retro 80s IA</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
   <main class="app">
     <header>
       <div>
-        <h1>Sanjuanero IA</h1>
-        <p>Generador local · FastSD CPU + FLUX.2 Klein 4B</p>
+        <h1>Retro 80s IA</h1>
+        <p>Retrato de estudio de 1985 · FastSD CPU + FLUX.2 Klein 4B</p>
       </div>
       <span id="status" class="badge">Comprobando...</span>
     </header>
@@ -32,12 +32,12 @@
       <section class="card">
         <h2 id="costumeTitle">2. Vestuario</h2>
         <div id="singleCostume">
-          <label class="choice"><input type="radio" name="costume" value="mujer" checked><span><b>Mujer</b><small>Blusa campesina, pollera y corona de flores</small></span></label>
-          <label class="choice"><input type="radio" name="costume" value="hombre"><span><b>Hombre</b><small>Camisa blanca, pañoleta roja y sombrero</small></span></label>
+          <label class="choice"><input type="radio" name="costume" value="mujer" checked><span><b>Mujer</b><small>Blusa pastel con hombreras, blazer y aretes dorados</small></span></label>
+          <label class="choice"><input type="radio" name="costume" value="hombre"><span><b>Hombre</b><small>Camisa de cuello ancho y blazer con hombreras</small></span></label>
         </div>
         <div id="pairCostume" class="hidden">
-          <label class="choice"><input type="radio" name="pairType" value="dos_mujeres"><span><b>Dos mujeres</b><small>Dos vestidos femeninos de Sanjuanero</small></span></label>
-          <label class="choice"><input type="radio" name="pairType" value="dos_hombres"><span><b>Dos hombres</b><small>Dos trajes masculinos de Sanjuanero</small></span></label>
+          <label class="choice"><input type="radio" name="pairType" value="dos_mujeres"><span><b>Dos mujeres</b><small>Dos looks femeninos ochenteros</small></span></label>
+          <label class="choice"><input type="radio" name="pairType" value="dos_hombres"><span><b>Dos hombres</b><small>Dos looks masculinos ochenteros</small></span></label>
           <label class="choice"><input type="radio" name="pairType" value="pareja_mixta" checked><span><b>Pareja mixta</b><small>Vestuario femenino y masculino</small></span></label>
           <label class="choice"><input type="radio" name="pairType" value="adulto_nino"><span><b>Adulto con niño</b><small>Vestuario según cada persona detectada</small></span></label>
         </div>
@@ -57,7 +57,7 @@
       <div class="strength-labels"><span>Suave</span><span id="strengthValue">0.30</span><span>Tu cara</span></div>
     </section>
 
-    <button id="generate">✨ GENERAR SANJUANERO</button>
+    <button id="generate">✨ GENERAR RETRATO 80s</button>
 
     <section id="loading" class="card hidden">
       <div class="spinner"></div>
@@ -66,8 +66,8 @@
 
     <section id="result" class="card hidden">
       <h2>Resultado</h2>
-      <img id="resultImage" alt="Sanjuanero generado">
-      <a id="download" download="sanjuanero.png">Descargar imagen</a>
+      <img id="resultImage" alt="Retrato ochentero generado">
+      <a id="download" download="retrato_80s.png">Descargar imagen</a>
     </section>
 
     <footer>Procesamiento local · Node.js/NPM controla FastSD · sin API de imágenes en la nube</footer>

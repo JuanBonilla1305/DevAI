@@ -4,6 +4,10 @@ const fs = require("fs");
 const path = require("path");
 const { spawn } = require("child_process");
 const http = require("http");
+const {
+    buildPrompt80s,
+    buildTwoPersonPrompt80s
+} = require("./prompts80s");
 
 const GENERATE_TIMEOUT_MS = 60 * 60 * 1000;
 
@@ -88,7 +92,17 @@ const PORT = 3000;
 // La carpeta raíz se obtiene desde la ubicación de este archivo para que el
 // proyecto funcione sin importar la unidad, el usuario o la ruta del clon.
 const SANJUANERO_DIR = path.resolve(__dirname, "..");
-const FASTSD_DIR = path.join(SANJUANERO_DIR, "fastsdcpu-main");
+// El zip de FastSD se descomprime como "fastsdcpu", pero la documentacion
+// original lo llama "fastsdcpu-main". Aceptamos los dos nombres para que el
+// proyecto funcione se haya descomprimido como se haya descomprimido.
+const FASTSD_DIR = (() => {
+    const candidatos = ["fastsdcpu-main", "fastsdcpu"].map(
+        nombre => path.join(SANJUANERO_DIR, nombre)
+    );
+    return candidatos.find(ruta =>
+        fs.existsSync(path.join(ruta, "src", "app.py"))
+    ) || candidatos[0];
+})();
 
 const FASTSD_PYTHON = path.join(
     FASTSD_DIR,
@@ -727,6 +741,24 @@ Photorealistic, no text, no flag and no watermark.
 `;
 }
 
+/**
+ * Tema visual activo. Se elige con la variable de entorno TEMA:
+ *   TEMA=80s          retrato de estudio de los anios 80 (por defecto)
+ *   TEMA=sanjuanero   el baile Sanjuanero Huilense original
+ *
+ * Los prompts de los 80 viven en prompts80s.js, asi que el tema original
+ * queda intacto y se puede volver a el cambiando una variable.
+ */
+const TEMA = (process.env.TEMA || "80s").toLowerCase();
+
+const construirPrompt =
+    TEMA === "sanjuanero" ? buildPrompt : buildPrompt80s;
+
+const construirPromptDosPersonas =
+    TEMA === "sanjuanero" ? buildTwoPersonPrompt : buildTwoPersonPrompt80s;
+
+console.log(`Tema activo: ${TEMA}`);
+
 function classifyPair(people) {
     if (people.some(person => person.ageGroup !== "adulto")) {
         return "adulto_nino";
@@ -1104,12 +1136,12 @@ app.post(
 
             const prompt =
                 peopleCount === "2"
-                    ? buildTwoPersonPrompt(
+                    ? construirPromptDosPersonas(
                         pairType,
                         detectedPeople,
                         Boolean(costumeRefBase64)
                     )
-                    : buildPrompt(
+                    : construirPrompt(
                         costume,
                         headRefsBase64.length > 0,
                         Boolean(costumeRefBase64),
